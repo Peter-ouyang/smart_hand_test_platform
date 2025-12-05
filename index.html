@@ -1,0 +1,4918 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>灵巧手自动化测试平台 - 学习方案</title>
+    <!-- 引入第三方库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/antd/5.12.8/reset.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chart.js/4.4.8/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/antd/5.12.8/antd.min.js"></script>
+    <!-- 自定义样式 -->
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f7fa;
+        }
+
+        /* 顶部导航栏 */
+        .top-nav {
+            background-color: #001529;
+            color: white;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1890ff;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-left: 32px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .nav-item:hover {
+            color: #1890ff;
+        }
+
+        /* 主要内容区域 */
+        .main-container {
+            display: flex;
+            margin-top: 64px;
+            height: calc(100vh - 64px);
+        }
+
+        /* 侧边栏目录 */
+        .sidebar {
+            width: 280px;
+            background-color: white;
+            border-right: 1px solid #e8e8e8;
+            overflow-y: auto;
+            padding: 24px 0;
+            position: fixed;
+            left: 0;
+            top: 64px;
+            bottom: 0;
+            z-index: 999;
+        }
+
+        .sidebar-title {
+            font-size: 16px;
+            font-weight: bold;
+            padding: 0 24px 16px;
+            color: #001529;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-item {
+            padding: 8px 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-item:hover {
+            background-color: #f0f2f5;
+            border-left-color: #1890ff;
+        }
+
+        .sidebar-item.active {
+            background-color: #e6f7ff;
+            border-left-color: #1890ff;
+            color: #1890ff;
+        }
+
+        .sidebar-submenu {
+            list-style: none;
+            padding-left: 24px;
+        }
+
+        .sidebar-subitem {
+            padding: 6px 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .sidebar-subitem:hover {
+            background-color: #f0f2f5;
+            color: #1890ff;
+        }
+
+        /* 内容区域 */
+        .content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 24px 48px;
+            overflow-y: auto;
+            background-color: #f5f7fa;
+        }
+
+        /* 页面标题 */
+        .page-title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 24px;
+            color: #001529;
+        }
+
+        /* 章节标题 */
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 32px 0 16px;
+            color: #001529;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #1890ff;
+        }
+
+        .subsection-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 24px 0 12px;
+            color: #001529;
+        }
+
+        /* 内容块 */
+        .content-block {
+            background-color: white;
+            padding: 24px;
+            margin-bottom: 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        /* 卡片样式 */
+        .card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #001529;
+        }
+
+        /* 代码编辑器 */
+        .code-editor-container {
+            background-color: #fafafa;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        .code-editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 16px;
+            background-color: #f0f2f5;
+            border-bottom: 1px solid #e8e8e8;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .code-editor-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #001529;
+        }
+
+        .code-editor-actions {
+            display: flex;
+        }
+
+        .run-button {
+            background-color: #1890ff;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .run-button:hover {
+            background-color: #40a9ff;
+        }
+
+        #code-editor {
+            height: 300px;
+        }
+
+        .code-result {
+            padding: 16px;
+            background-color: #fafafa;
+            border-top: 1px solid #e8e8e8;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        /* 交互式图表 */
+        .chart-container {
+            margin: 16px 0;
+            padding: 16px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        /* 模拟实验环境 */
+        .simulation-container {
+            margin: 16px 0;
+            padding: 24px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .simulation-controls {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-label {
+            font-size: 14px;
+            color: #595959;
+        }
+
+        .slider {
+            width: 200px;
+        }
+
+        .simulation-result {
+            margin-top: 16px;
+            padding: 16px;
+            background-color: #fafafa;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        /* 进度跟踪 */
+        .progress-container {
+            background-color: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 16px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .progress-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #001529;
+        }
+
+        .progress-stats {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 16px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1890ff;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #595959;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #f0f2f5;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #1890ff;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        /* 即时反馈 */
+        .feedback-container {
+            background-color: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 16px;
+        }
+
+        .feedback-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: #001529;
+        }
+
+        .feedback-form {
+            margin-bottom: 16px;
+        }
+
+        .feedback-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e8e8e8;
+            border-radius: 4px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 100px;
+            margin-bottom: 16px;
+        }
+
+        .feedback-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .submit-button {
+            background-color: #52c41a;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .submit-button:hover {
+            background-color: #73d13d;
+        }
+
+        .feedback-result {
+            padding: 16px;
+            border-radius: 4px;
+            margin-top: 16px;
+        }
+
+        .feedback-result.success {
+            background-color: #f6ffed;
+            border: 1px solid #b7eb8f;
+            color: #52c41a;
+        }
+
+        .feedback-result.error {
+            background-color: #fff1f0;
+            border: 1px solid #ffccc7;
+            color: #ff4d4f;
+        }
+
+        /* 个性化学习路径 */
+        .personalized-container {
+            background-color: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 16px;
+        }
+
+        .personalized-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: #001529;
+        }
+
+        .recommendation-list {
+            list-style: none;
+        }
+
+        .recommendation-item {
+            padding: 12px;
+            border-bottom: 1px solid #e8e8e8;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .recommendation-item:hover {
+            background-color: #f0f2f5;
+        }
+
+        .recommendation-item:last-child {
+            border-bottom: none;
+        }
+
+        .recommendation-title {
+            font-weight: bold;
+            color: #001529;
+        }
+
+        .recommendation-desc {
+            font-size: 14px;
+            color: #595959;
+            margin-top: 4px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .content {
+                margin-left: 0;
+                padding: 16px;
+            }
+
+            .nav-menu {
+                display: none;
+            }
+
+            .simulation-controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .progress-stats {
+                flex-direction: column;
+                gap: 16px;
+            }
+        }
+
+        /* 返回顶部按钮 */
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background-color: #1890ff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            z-index: 9999;
+        }
+
+        .back-to-top:hover {
+            background-color: #40a9ff;
+            transform: translateY(-5px);
+        }
+
+        .back-to-top.show {
+            display: flex;
+        }
+
+        /* 工具提示 */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            border-bottom: 1px dotted #1890ff;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* 高亮文本 */
+        .highlight {
+            background-color: #fff2cc;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+
+        /* 表格样式 */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        .table th,
+        .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .table th {
+            background-color: #fafafa;
+            font-weight: bold;
+            color: #001529;
+        }
+
+        .table tr:hover {
+            background-color: #fafafa;
+        }
+
+        /* 标签样式 */
+        .tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .tag.primary {
+            background-color: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .tag.success {
+            background-color: #f6ffed;
+            color: #52c41a;
+        }
+
+        .tag.warning {
+            background-color: #fffbe6;
+            color: #faad14;
+        }
+
+        .tag.error {
+            background-color: #fff1f0;
+            color: #ff4d4f;
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #1890ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <nav class="top-nav">
+        <div class="logo">灵巧手自动化测试平台</div>
+        <ul class="nav-menu">
+            <li class="nav-item" onclick="scrollToSection('home')">首页</li>
+            <li class="nav-item" onclick="scrollToSection('learning-plan')">学习计划</li>
+            <li class="nav-item" onclick="scrollToSection('exercises')">配套练习</li>
+            <li class="nav-item" onclick="scrollToSection('resources')">学习资源</li>
+            <li class="nav-item" onclick="scrollToSection('progress')">学习进度</li>
+            <li class="nav-item" onclick="scrollToSection('feedback')">反馈建议</li>
+        </ul>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <div class="main-container">
+        <!-- 侧边栏目录 -->
+        <aside class="sidebar">
+            <div class="sidebar-title">学习目录</div>
+            <ul class="sidebar-menu">
+                <li class="sidebar-item" onclick="scrollToSection('home')">首页</li>
+                <li class="sidebar-item" onclick="scrollToSection('learning-objectives')">学习目标</li>
+                <li class="sidebar-item" onclick="scrollToSection('stage-1')">阶段一：基础概念与Python编程基础</li>
+                <li class="sidebar-item" onclick="scrollToSection('stage-2')">阶段二：自动化测试框架与工具</li>
+                <li class="sidebar-item" onclick="scrollToSection('stage-3')">阶段三：通信接口与协议测试</li>
+                <li class="sidebar-item" onclick="scrollToSection('stage-4')">阶段四：ROS/ROS2框架测试</li>
+                <li class="sidebar-item" onclick="scrollToSection('stage-5')">阶段五：仿真平台应用</li>
+                <li class="sidebar-item" onclick="scrollToSection('stage-6')">阶段六：CI/CD流水线搭建</li>
+                <li class="sidebar-item" onclick="scrollToSection('stage-7')">阶段七：运动控制算法与传感器数据处理测试</li>
+                <li class="sidebar-item" onclick="scrollToSection('stage-8')">阶段八：综合项目实践</li>
+                <li class="sidebar-item" onclick="scrollToSection('key-difficulties')">重点难点解析</li>
+                <li class="sidebar-item" onclick="scrollToSection('exercises')">配套练习</li>
+                <li class="sidebar-item" onclick="scrollToSection('evaluation')">效果评估方法</li>
+                <li class="sidebar-item" onclick="scrollToSection('resources')">学习资源推荐</li>
+                <li class="sidebar-item" onclick="scrollToSection('suggestions')">学习建议</li>
+                <li class="sidebar-item" onclick="scrollToSection('expected-results')">预期学习成果</li>
+            </ul>
+        </aside>
+
+        <!-- 内容区域 -->
+        <main class="content">
+            <!-- 首页 -->
+            <section id="home" class="content-block">
+                <h1 class="page-title">灵巧手自动化测试平台</h1>
+                <div class="card">
+                    <h2 class="card-title">适用人群</h2>
+                    <p>具备高中知识水平，对机器人、自动化测试感兴趣的学习者</p>
+                </div>
+                <div class="card">
+                    <h2 class="card-title">教学方法</h2>
+                    <ul>
+                        <li><strong>第一性原理分析</strong>：从最基本的概念出发，逐步推导和理解复杂原理，避免死记硬背</li>
+                        <li><strong>生活化类比</strong>：将抽象的技术概念与生活中的常见事物进行生动类比，让复杂原理变得通俗易懂</li>
+                        <li><strong>循序渐进</strong>：从简单到复杂，从基础到高级，逐步深入学习</li>
+                        <li><strong>实践导向</strong>：每学习一个概念，立即通过实践练习巩固，确保真正掌握</li>
+                        <li><strong>可视化教学</strong>：使用图表、动画等可视化方式展示抽象概念，增强理解</li>
+                        <li><strong>问题驱动</strong>：通过实际问题引导学习，培养解决实际问题的能力</li>
+                    </ul>
+                </div>
+                
+                <!-- 学习进度跟踪 -->
+                <div class="progress-container" id="progress">
+                    <div class="progress-header">
+                        <h2 class="progress-title">学习进度</h2>
+                        <div class="loading" id="loading"></div>
+                    </div>
+                    <div class="progress-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">0%</div>
+                            <div class="stat-label">完成率</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">0</div>
+                            <div class="stat-label">学习时长（小时）</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">0</div>
+                            <div class="stat-label">完成章节</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">0</div>
+                            <div class="stat-label">完成练习</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <div class="personalized-container">
+                        <h3 class="personalized-title">个性化学习推荐</h3>
+                        <ul class="recommendation-list">
+                            <li class="recommendation-item" onclick="scrollToSection('stage-1')">
+                                <div class="recommendation-title">阶段一：基础概念与Python编程基础</div>
+                                <div class="recommendation-desc">建议从Python编程基础开始学习，这是自动化测试的基础</div>
+                            </li>
+                            <li class="recommendation-item" onclick="scrollToSection('exercise-1')">
+                                <div class="recommendation-title">Python编程基础练习</div>
+                                <div class="recommendation-desc">通过编写简单的Python程序，巩固编程基础</div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 学习目标 -->
+            <section id="learning-objectives" class="content-block">
+                <h2 class="section-title">学习目标</h2>
+                
+                <h3 class="subsection-title">1. 知识目标</h3>
+                <ul>
+                    <li><span class="highlight">✅</span> 理解自动化测试的基本概念和原理，能够区分自动化测试和手动测试的优缺点</li>
+                    <li><span class="highlight">✅</span> 掌握Python编程语言基础，能够编写简单的Python程序</li>
+                    <li><span class="highlight">✅</span> 掌握pytest+allure+loguru自动化测试框架的使用，能够编写和执行自动化测试用例</li>
+                    <li><span class="highlight">✅</span> 了解ROS/ROS2框架的基本概念，能够理解机器人操作系统的工作原理</li>
+                    <li><span class="highlight">✅</span> 掌握通信接口与协议（CAN、UART、TCP/UDP）的基本概念，能够进行简单的通信测试</li>
+                    <li><span class="highlight">✅</span> 了解仿真平台（Gazebo、CoppeliaSim）的基本使用，能够进行简单的机器人仿真</li>
+                    <li><span class="highlight">✅</span> 掌握CI/CD流水线的基本概念和搭建方法，能够实现自动化构建和测试</li>
+                    <li><span class="highlight">✅</span> 理解运动控制算法的基本原理，能够实现简单的PID控制</li>
+                    <li><span class="highlight">✅</span> 掌握传感器数据处理的基本方法，能够进行简单的数据过滤和分析</li>
+                </ul>
+
+                <h3 class="subsection-title">2. 能力目标</h3>
+                <ul>
+                    <li><span class="highlight">✅</span> 能够独立设计和实现自动化测试用例，覆盖基本的功能测试场景</li>
+                    <li><span class="highlight">✅</span> 能够使用自动化测试框架进行测试执行，生成清晰的测试报告</li>
+                    <li><span class="highlight">✅</span> 能够进行简单的ROS/ROS2节点测试，验证节点的功能正确性</li>
+                    <li><span class="highlight">✅</span> 能够进行简单的通信接口测试，验证数据传输的准确性</li>
+                    <li><span class="highlight">✅</span> 能够使用仿真平台进行机器人仿真测试，验证机器人的运动性能</li>
+                    <li><span class="highlight">✅</span> 能够搭建简单的CI/CD流水线，实现代码的自动测试和部署</li>
+                    <li><span class="highlight">✅</span> 能够实现简单的运动控制算法，并测试其控制效果</li>
+                    <li><span class="highlight">✅</span> 能够实现简单的传感器数据处理算法，并测试其处理效果</li>
+                    <li><span class="highlight">✅</span> 能够完成一个完整的自动化测试项目，从需求分析到测试报告生成</li>
+                </ul>
+
+                <h3 class="subsection-title">3. 情感目标</h3>
+                <ul>
+                    <li><span class="highlight">✅</span> 培养对自动化测试和机器人技术的兴趣和热爱</li>
+                    <li><span class="highlight">✅</span> 培养系统化思考和解决问题的能力，能够从整体角度分析问题</li>
+                    <li><span class="highlight">✅</span> 培养团队协作和沟通能力，能够与他人合作完成项目</li>
+                    <li><span class="highlight">✅</span> 培养持续学习和自我提升的能力，能够主动学习新技术</li>
+                    <li><span class="highlight">✅</span> 培养创新思维和实践能力，能够将理论知识应用到实际问题中</li>
+                    <li><span class="highlight">✅</span> 培养严谨的工作态度和责任心，能够保证测试结果的准确性</li>
+                </ul>
+            </section>
+
+            <!-- 阶段一：基础概念与Python编程基础 -->
+            <section id="stage-1" class="content-block">
+                <h2 class="section-title">阶段一：基础概念与Python编程基础（4周）</h2>
+                
+                <h3 class="subsection-title">学习目标</h3>
+                <ul>
+                    <li>理解自动化测试的基本概念和优势</li>
+                    <li>掌握Python编程的基本语法和面向对象编程</li>
+                    <li>能够使用pytest编写简单的测试用例</li>
+                </ul>
+
+                <h3 class="subsection-title">学习内容</h3>
+                
+                <h4>1. 自动化测试基础</h4>
+                <ul>
+                    <li>自动化测试的概念、优势和应用场景</li>
+                    <li>自动化测试的基本流程和方法</li>
+                    <li><strong>第一性原理分析</strong>：从测试的本质（验证产品是否符合预期）出发，推导自动化测试的核心价值——提高测试效率、降低人为错误、确保测试一致性</li>
+                    <li><strong>生活化类比</strong>：将自动化测试类比为工厂生产线的质量检测机器人，代替人工进行重复、繁琐的检测工作，提高生产效率和产品质量</li>
+                </ul>
+
+                <h4>2. Python编程基础</h4>
+                <ul>
+                    <li>Python基本语法（变量、数据类型、控制结构、函数等）</li>
+                    <li><strong>第一性原理分析</strong>：从计算机编程的本质（告诉计算机做什么）出发，理解Python语法的核心逻辑——用简洁的语言描述复杂的逻辑</li>
+                    <li><strong>生活化类比</strong>：将Python变量类比为储物箱，不同的数据类型类比为不同类型的储物箱（如纸箱、铁箱、塑料箱），分别用于存放不同类型的物品</li>
+                    <li><strong>生活化类比</strong>：将控制结构（if-else、循环）类比为交通规则，告诉计算机在不同情况下应该如何行驶</li>
+                    <li>Python面向对象编程（类、对象、继承、多态等）</li>
+                    <li><strong>第一性原理分析</strong>：从面向对象的本质（将现实世界的事物抽象为代码中的对象）出发，理解类和对象的关系</li>
+                    <li><strong>生活化类比</strong>：将类类比为汽车的设计图纸，对象类比为根据图纸生产出来的具体汽车，继承类比为在原有图纸基础上进行修改和扩展</li>
+                </ul>
+
+                <h4>3. pytest测试框架基础</h4>
+                <ul>
+                    <li>pytest的基本概念和使用方法</li>
+                    <li>测试用例的编写规范</li>
+                    <li>断言和测试结果分析</li>
+                    <li><strong>第一性原理分析</strong>：从测试的本质（验证预期结果）出发，理解pytest的核心设计思想——简单、灵活、可扩展</li>
+                    <li><strong>生活化类比</strong>：将pytest类比为考试的评分标准，断言类比为标准答案，测试用例类比为具体的考试题，测试结果类比为考试成绩</li>
+                </ul>
+
+                <h3 class="subsection-title">重点难点解析</h3>
+                <ul>
+                    <li><strong>重点</strong>：Python基本语法和面向对象编程</li>
+                    <li><strong>难点</strong>：面向对象编程的概念和应用</li>
+                    <li><strong>解析</strong>：通过生活化类比（如将类比作蓝图，对象比作根据蓝图建造的房子）帮助理解面向对象编程；通过实际案例（如编写计算器类）帮助掌握面向对象编程的应用</li>
+                </ul>
+
+                <h3 class="subsection-title">配套练习</h3>
+                <ol>
+                    <li><strong>基础练习</strong>：编写Python程序实现加减乘除等基本数学运算</li>
+                    <li><strong>进阶练习</strong>：编写Python类实现简单的计算器功能，包括加、减、乘、除、平方、开方等功能</li>
+                    <li><strong>综合练习</strong>：使用pytest编写测试用例测试计算器功能，包括正常情况、边界情况和异常情况</li>
+                </ol>
+
+                <!-- 可操作代码示例 -->
+                <h3 class="subsection-title">交互式代码示例</h3>
+                <div class="code-editor-container">
+                    <div class="code-editor-header">
+                        <div class="code-editor-title">Python计算器示例</div>
+                        <div class="code-editor-actions">
+                            <button class="run-button" onclick="runCode()">运行代码</button>
+                        </div>
+                    </div>
+                    <textarea id="code-editor">class Calculator:
+    def add(self, a, b):
+        return a + b
+    
+    def subtract(self, a, b):
+        return a - b
+    
+    def multiply(self, a, b):
+        return a * b
+    
+    def divide(self, a, b):
+        if b == 0:
+            raise ValueError("除数不能为零")
+        return a / b
+    
+    def square(self, a):
+        return a ** 2
+    
+    def square_root(self, a):
+        if a < 0:
+            raise ValueError("不能对负数开平方")
+        return a ** 0.5
+
+# 使用示例
+calc = Calculator()
+print("10 + 5 =", calc.add(10, 5))
+print("10 - 5 =", calc.subtract(10, 5))
+print("10 * 5 =", calc.multiply(10, 5))
+print("10 / 5 =", calc.divide(10, 5))
+print("10的平方 =", calc.square(10))
+print("10的平方根 =", calc.square_root(10))</textarea>
+                    <div class="code-result" id="code-result"></div>
+                </div>
+
+                <!-- 交互式图表示例 -->
+                <h3 class="subsection-title">交互式图表</h3>
+                <div class="chart-container">
+                    <canvas id="example-chart" width="400" height="200"></canvas>
+                </div>
+
+                <h3 class="subsection-title">时间安排</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>周数</th>
+                            <th>学习内容</th>
+                            <th>练习任务</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>第1周</td>
+                            <td>自动化测试基础 + Python基本语法</td>
+                            <td>编写简单的Python程序实现数学运算</td>
+                        </tr>
+                        <tr>
+                            <td>第2周</td>
+                            <td>Python控制结构和函数</td>
+                            <td>编写Python函数实现复杂的数学运算</td>
+                        </tr>
+                        <tr>
+                            <td>第3周</td>
+                            <td>Python面向对象编程</td>
+                            <td>编写计算器类实现基本功能</td>
+                        </tr>
+                        <tr>
+                            <td>第4周</td>
+                            <td>pytest测试框架</td>
+                            <td>使用pytest编写测试用例测试计算器功能</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- 阶段二：自动化测试框架与工具 -->
+            <section id="stage-2" class="content-block">
+                <h2 class="section-title">阶段二：自动化测试框架与工具（6周）</h2>
+                
+                <h3 class="subsection-title">学习目标</h3>
+                <ul>
+                    <li>掌握pytest的高级特性，包括fixture、参数化测试和插件</li>
+                    <li>能够使用allure生成美观、交互性强的测试报告</li>
+                    <li>能够使用loguru进行高效的日志管理</li>
+                    <li>能够使用Python+pytest+allure+loguru进行灵巧手产品功能测试</li>
+                    <li>理解自动化测试框架的核心价值和设计思想</li>
+                </ul>
+
+                <h3 class="subsection-title">学习内容</h3>
+                
+                <h4>1. pytest高级特性</h4>
+                <ul>
+                    <li><strong>理论知识</strong>：
+                        <ul>
+                            <li><strong>fixture</strong>：fixture的定义和使用方法、作用域（function、class、module、session）、依赖关系、自动执行和手动调用、参数化</li>
+                            <li><strong>参数化测试</strong>：使用@pytest.mark.parametrize装饰器实现参数化测试、多种形式（单参数、多参数、参数组合）、ID自定义</li>
+                            <li><strong>pytest插件</strong>：pytest-cov（测试覆盖率统计）、pytest-mock（模拟对象和函数）、pytest-html（生成HTML测试报告）、pytest-xdist（分布式测试执行）、pytest-asyncio（异步测试支持）</li>
+                        </ul>
+                    </li>
+                    <li><strong>第一性原理分析</strong>：从测试的本质（确保测试的可靠性和可重复性）出发，理解pytest高级特性的核心价值——提高测试用例的复用性、减少重复代码、增强测试的灵活性</li>
+                    <li><strong>生活化类比</strong>：将fixture类比为考试前的准备工作，参数化测试类比为做练习题时用不同数值代入同一公式，pytest插件类比为考试的辅助工具</li>
+                </ul>
+
+                <h4>2. allure测试报告</h4>
+                <ul>
+                    <li><strong>理论知识</strong>：
+                        <ul>
+                            <li>allure的安装和配置</li>
+                            <li>allure装饰器的使用：@allure.feature、@allure.story、@allure.step、@allure.severity、@allure.description、@allure.link</li>
+                            <li>allure报告的生成和分析</li>
+                            <li>allure报告的定制化</li>
+                        </ul>
+                    </li>
+                    <li><strong>第一性原理分析</strong>：从测试报告的本质（清晰展示测试结果，便于分析和决策）出发，理解allure的核心设计思想——可视化、结构化、交互性</li>
+                    <li><strong>生活化类比</strong>：将allure报告类比为期末考试的成绩单，不仅显示总分，还详细列出每道题的得分情况、错题原因、知识点分布等</li>
+                </ul>
+
+                <h4>3. loguru日志管理</h4>
+                <ul>
+                    <li><strong>理论知识</strong>：
+                        <ul>
+                            <li>loguru的安装和配置</li>
+                            <li>日志的分级：DEBUG、INFO、WARNING、ERROR、CRITICAL</li>
+                            <li>日志的格式化和输出控制</li>
+                            <li>日志文件的管理（滚动、压缩、归档）</li>
+                            <li>日志的过滤和捕获</li>
+                            <li>异常日志的完整记录</li>
+                        </ul>
+                    </li>
+                    <li><strong>第一性原理分析</strong>：从日志的本质（记录系统运行过程中的重要信息）出发，理解loguru的核心设计思想——简单、高效、易扩展</li>
+                    <li><strong>生活化类比</strong>：将loguru日志类比为飞机的黑匣子，记录飞行过程中的所有重要信息，便于事故分析</li>
+                </ul>
+
+                <h4>4. 灵巧手产品功能测试</h4>
+                <ul>
+                    <li><strong>理论知识</strong>：
+                        <ul>
+                            <li>灵巧手的基本概念和结构：手指结构、驱动系统、传感器系统、控制系统</li>
+                            <li>灵巧手SDK的基本使用：连接和初始化、关节角度控制、位置反馈读取、力反馈读取、预设动作执行</li>
+                            <li>灵巧手功能测试方法：功能测试（抓取、释放、旋转等）、性能测试（响应时间、精度等）、可靠性测试（长时间运行）、安全性测试（碰撞检测）</li>
+                        </ul>
+                    </li>
+                    <li><strong>第一性原理分析</strong>：从产品测试的本质（验证产品是否符合设计要求）出发，理解灵巧手功能测试的核心方法——覆盖所有功能点、验证边界情况、确保安全性</li>
+                    <li><strong>生活化类比</strong>：将灵巧手功能测试类比为手机APP的功能测试，确保每个按钮、每个功能都能正常工作</li>
+                </ul>
+
+                <h3 class="subsection-title">重点难点解析</h3>
+                <ul>
+                    <li><strong>重点</strong>：pytest高级特性（fixture、参数化测试）和allure测试报告的使用</li>
+                    <li><strong>难点</strong>：
+                        <ul>
+                            <li>pytest fixture的设计和使用：fixture的作用域选择、依赖关系设计、参数化fixture</li>
+                            <li>allure报告的定制化：合理使用allure装饰器、测试步骤的设计、报告的结构优化</li>
+                            <li>灵巧手功能测试的环境搭建和执行：灵巧手SDK的安装和配置、测试环境的搭建、安全操作</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3 class="subsection-title">配套练习</h3>
+                <ol>
+                    <li><strong>基础练习：pytest高级特性</strong>
+                        <ul>
+                            <li><strong>练习目标</strong>：掌握pytest的高级特性，包括fixture、参数化测试和插件</li>
+                            <li><strong>练习内容</strong>：编写fixture实现测试环境的自动准备和清理；使用参数化测试测试计算器的不同运算功能；使用pytest插件生成测试覆盖率报告</li>
+                        </ul>
+                    </li>
+                    <li><strong>进阶练习：allure测试报告</strong>
+                        <ul>
+                            <li><strong>练习目标</strong>：掌握allure测试报告的生成和使用</li>
+                            <li><strong>练习内容</strong>：使用allure装饰器编写带有详细描述的测试用例；生成allure测试报告；分析allure测试报告</li>
+                        </ul>
+                    </li>
+                    <li><strong>进阶练习：loguru日志管理</strong>
+                        <ul>
+                            <li><strong>练习目标</strong>：掌握loguru日志管理的使用</li>
+                            <li><strong>练习内容</strong>：配置loguru日志；在测试用例中使用loguru记录日志；查看和分析日志文件</li>
+                        </ul>
+                    </li>
+                    <li><strong>综合练习：灵巧手功能测试</strong>
+                        <ul>
+                            <li><strong>练习目标</strong>：掌握灵巧手功能测试的方法</li>
+                            <li><strong>练习内容</strong>：编写灵巧手功能测试用例测试抓取、释放、旋转等功能；使用pytest+allure+loguru进行测试；生成测试报告</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <!-- 可操作代码示例 -->
+                <h3 class="subsection-title">交互式代码示例：pytest+allure+loguru</h3>
+                <div class="code-editor-container">
+                    <div class="code-editor-header">
+                        <div class="code-editor-title">使用pytest+allure+loguru测试计算器功能</div>
+                        <div class="code-editor-actions">
+                            <button class="run-button" onclick="runCode()">运行代码</button>
+                        </div>
+                    </div>
+                    <textarea id="stage2-code-editor">import allure
+import pytest
+from loguru import logger
+
+# 计算器类
+class Calculator:
+    def add(self, a, b):
+        return a + b
+    
+    def subtract(self, a, b):
+        return a - b
+    
+    def multiply(self, a, b):
+        return a * b
+    
+    def divide(self, a, b):
+        if b == 0:
+            raise ValueError("除数不能为零")
+        return a / b
+
+# Fixture：创建计算器实例
+@pytest.fixture
+def calculator():
+    logger.info("创建计算器实例")
+    return Calculator()
+
+# 参数化测试数据
+add_test_data = [
+    (10, 5, 15),
+    (0, 0, 0),
+    (-10, 5, -5),
+    (1.5, 2.5, 4.0)
+]
+
+# 使用allure和参数化测试
+@allure.feature("计算器功能")
+@allure.story("加法功能")
+@pytest.mark.parametrize("a, b, expected", add_test_data, ids=[f"{a}+{b}={expected}" for a, b, expected in add_test_data])
+def test_add(calculator, a, b, expected):
+    """测试计算器加法功能"""
+    logger.info(f"测试 {a} + {b} = {expected}")
+    result = calculator.add(a, b)
+    logger.debug(f"计算结果：{result}")
+    assert result == expected, f"预期结果为 {expected}，实际结果为 {result}"
+
+# 运行测试：pytest test_calculator.py --alluredir=allure-results
+# 生成报告：allure generate allure-results -o allure-report --clean</textarea>
+                    <div class="code-result" id="stage2-code-result"></div>
+                </div>
+            </section>
+
+            <!-- 阶段三：通信接口与协议测试 -->
+            <section id="stage-3" class="content-block">
+                <h2 class="section-title">阶段三：通信接口与协议测试（4周）</h2>
+                
+                <h3 class="subsection-title">学习目标</h3>
+                <ul>
+                    <li>理解通信接口与协议的基本概念和分类</li>
+                    <li>掌握CAN总线、UART、TCP/UDP等常用通信协议的基本原理</li>
+                    <li>能够使用Python库进行简单的通信测试</li>
+                    <li>理解通信协议的OSI七层模型及其在实际通信中的应用</li>
+                    <li>能够进行简单的通信协议分析和故障排查</li>
+                </ul>
+
+                <h3 class="subsection-title">学习内容</h3>
+                
+                <h4>1. 通信接口与协议基础</h4>
+                <ul>
+                    <li><strong>理论知识</strong>：通信接口的基本概念、通信方式分类、OSI七层模型、通信协议的关键参数</li>
+                    <li><strong>第一性原理分析</strong>：从通信的本质（信息的传递）出发，理解通信接口和协议的核心价值——确保信息能够准确、可靠地从发送方传递到接收方</li>
+                    <li><strong>生活化类比</strong>：将通信协议类比为人类的语言，不同的设备通过共同的语言（协议）进行交流；将OSI七层模型类比为信件的传递过程</li>
+                </ul>
+
+                <h4>2. CAN总线测试</h4>
+                <ul>
+                    <li><strong>理论知识</strong>：CAN总线的基本概念、特点、帧结构、物理层</li>
+                    <li><strong>第一性原理分析</strong>：从CAN总线的本质（多主多从、基于消息的通信）出发，理解CAN总线测试的核心方法</li>
+                    <li><strong>生活化类比</strong>：将CAN总线类比为会议室的讨论，多个设备（参会者）通过CAN总线（会议室）进行信息交换</li>
+                </ul>
+
+                <h4>3. UART测试</h4>
+                <ul>
+                    <li><strong>理论知识</strong>：UART的基本概念、通信原理、物理接口、特点</li>
+                    <li><strong>第一性原理分析</strong>：从UART的本质（异步串行通信）出发，理解UART测试的核心方法</li>
+                    <li><strong>生活化类比</strong>：将UART类比为两个人通过电话进行一对一通信</li>
+                </ul>
+
+                <h4>4. TCP/UDP测试</h4>
+                <ul>
+                    <li><strong>理论知识</strong>：TCP/UDP的基本概念、特点、应用场景</li>
+                    <li><strong>第一性原理分析</strong>：从TCP/UDP的本质（网络通信协议）出发，理解TCP/UDP测试的核心方法</li>
+                    <li><strong>生活化类比</strong>：将TCP类比为挂号信，确保数据可靠传输；将UDP类比为广播，快速但不保证可靠性</li>
+                </ul>
+
+                <h3 class="subsection-title">重点难点解析</h3>
+                <ul>
+                    <li><strong>重点</strong>：常用通信协议的基本原理和测试方法</li>
+                    <li><strong>难点</strong>：CAN总线的测试方法、TCP和UDP的区别、通信协议的故障排查</li>
+                    <li><strong>详细解析</strong>：
+                        <ul>
+                            <li>CAN总线测试的核心方法：消息发送和接收测试、负载测试、错误处理测试、仲裁机制测试、总线监控</li>
+                            <li>TCP和UDP的区别：连接方式、可靠性、传输速度、开销、应用场景</li>
+                            <li>通信协议故障排查方法：物理层检查、参数检查、协议检查、抓包分析、错误日志分析、替换测试</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3 class="subsection-title">配套练习</h3>
+                <ol>
+                    <li><strong>基础练习</strong>：UART通信测试</li>
+                    <li><strong>进阶练习</strong>：CAN总线测试</li>
+                    <li><strong>综合练习</strong>：TCP/UDP通信测试</li>
+                </ol>
+
+                <h3 class="subsection-title">交互式代码示例</h3>
+                <div class="code-editor-container">
+                    <div class="code-editor-header">
+                        <div class="code-editor-title">UART通信示例</div>
+                        <div class="code-editor-actions">
+                            <button class="run-button" onclick="runCode()">运行代码</button>
+                        </div>
+                    </div>
+                    <textarea id="uart-code-editor"># UART通信测试示例（使用pyserial库）
+import serial
+import time
+
+# 配置UART参数
+SERIAL_PORT = "COM3"  # 根据实际情况修改
+BAUD_RATE = 9600
+
+# 打开串口
+ser = serial.Serial(SERIAL_PORT, BAUD_RATE)
+
+try:
+    # 发送数据
+    send_data = "Hello, UART!"
+    ser.write(send_data.encode('utf-8'))
+    print(f"发送数据: {send_data}")
+    
+    # 接收数据
+    time.sleep(0.1)  # 等待数据返回
+    if ser.in_waiting > 0:
+        received_data = ser.read(ser.in_waiting).decode('utf-8')
+        print(f"接收数据: {received_data}")
+finally:
+    # 关闭串口
+    ser.close()
+    print("串口已关闭")</textarea>
+                    <div class="code-result" id="uart-code-result"></div>
+                </div>
+            </section>
+
+            <!-- 阶段四：ROS/ROS2框架测试 -->
+            <section id="stage-4" class="content-block">
+                <h2 class="section-title">阶段四：ROS/ROS2框架测试（6周）</h2>
+                
+                <h3 class="subsection-title">学习目标</h3>
+                <ul>
+                    <li>理解ROS/ROS2框架的基本概念和架构</li>
+                    <li>掌握ROS/ROS2的核心组件（节点、话题、服务、动作）</li>
+                    <li>能够编写简单的ROS/ROS2节点和测试用例</li>
+                    <li>理解ROS和ROS2的主要区别</li>
+                    <li>能够使用rostest/ros2test进行节点测试</li>
+                    <li>能够使用rqt工具进行ROS/ROS2系统监控和调试</li>
+                </ul>
+
+                <h3 class="subsection-title">学习内容</h3>
+                
+                <h4>1. ROS/ROS2基础</h4>
+                <ul>
+                    <li><strong>理论知识</strong>：
+                        <ul>
+                            <li>ROS/ROS2的基本概念：机器人操作系统，为机器人应用提供软件框架</li>
+                            <li>ROS/ROS2的架构：ROS1基于节点管理器（master），ROS2基于DDS（数据分发服务）</li>
+                            <li>核心组件：节点（Node）、话题（Topic）、服务（Service）、动作（Action）、参数（Parameter）</li>
+                            <li>版本区别：ROS1与ROS2的主要区别在于通信机制、安全性、跨平台支持等</li>
+                        </ul>
+                    </li>
+                    <li><strong>第一性原理分析</strong>：从机器人操作系统的本质（为机器人应用提供软件框架）出发，理解ROS/ROS2的核心设计思想——模块化、分布式、松耦合</li>
+                    <li><strong>生活化类比</strong>：将ROS/ROS2类比为城市的交通系统，节点类比为城市中的各个建筑，话题类比为城市中的道路，服务类比为城市中的快递服务，动作类比为城市中的外卖服务</li>
+                    <li><strong>实例说明</strong>：
+                        <div class="code-editor-container">
+                            <div class="code-editor-header">
+                                <div class="code-editor-title">ROS2话题发布者示例</div>
+                            </div>
+                            <textarea id="ros2-publisher-editor">#!/usr/bin/env python3
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import String
+
+class MinimalPublisher(Node):
+    def __init__(self):
+        super().__init__('minimal_publisher')
+        self.publisher_ = self.create_publisher(String, 'topic', 10)
+        timer_period = 0.5  # seconds
+        self.timer = self.create_timer(timer_period, self.timer_callback)
+        self.i = 0
+
+    def timer_callback(self):
+        msg = String()
+        msg.data = f'Hello ROS2! {self.i}'
+        self.publisher_.publish(msg)
+        self.get_logger().info(f'Publishing: "{msg.data}"')
+        self.i += 1
+
+def main(args=None):
+    rclpy.init(args=args)
+    minimal_publisher = MinimalPublisher()
+    rclpy.spin(minimal_publisher)
+    minimal_publisher.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()</textarea>
+                        </div>
+                    </li>
+                    <li><strong>实践指导</strong>：
+                        <ol>
+                            <li>安装ROS2 Humble或其他版本</li>
+                            <li>创建ROS2工作空间和功能包</li>
+                            <li>编写话题发布者和订阅者节点</li>
+                            <li>编译并运行节点，查看通信效果</li>
+                            <li>使用rqt工具查看节点间的通信关系</li>
+                        </ol>
+                    </li>
+                    <li><strong>注意事项</strong>：
+                        <ul>
+                            <li>ROS1和ROS2不兼容，需要选择合适的版本</li>
+                            <li>ROS2的DDS配置可能会影响通信性能</li>
+                            <li>编写节点时要遵循ROS2的最佳实践</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h4>2. ROS/ROS2测试方法</h4>
+                <ul>
+                    <li><strong>理论知识</strong>：
+                        <ul>
+                            <li><strong>测试工具</strong>：rostest（ROS1）/ros2test（ROS2）用于集成测试，pytest用于单元测试</li>
+                            <li><strong>测试用例类型</strong>：单元测试、集成测试、系统测试、回归测试</li>
+                            <li><strong>rqt工具集</strong>：rqt_graph（查看节点关系）、rqt_topic（查看话题数据）、rqt_service_caller（调用服务）、rqt_console（查看日志）</li>
+                            <li><strong>测试覆盖率</strong>：使用lcov或coverage.py测量代码覆盖率</li>
+                        </ul>
+                    </li>
+                    <li><strong>第一性原理分析</strong>：从测试的本质（验证功能正确性）出发，理解ROS/ROS2测试的核心方法——确保节点间通信正常、功能符合预期</li>
+                    <li><strong>生活化类比</strong>：将rostest/ros2test类比为建筑质量检测工具，用于验证建筑（节点）的质量；将rqt工具类比为城市监控系统，用于监控城市（ROS/ROS2系统）的运行状态</li>
+                    <li><strong>实例说明</strong>：
+                        <div class="code-editor-container">
+                            <div class="code-editor-header">
+                                <div class="code-editor-title">ROS2节点测试示例</div>
+                            </div>
+                            <textarea id="ros2-test-editor">#!/usr/bin/env python3
+import rclpy
+from rclpy.node import Node
+import pytest
+from std_msgs.msg import String
+
+# 导入要测试的节点
+from minimal_publisher import MinimalPublisher
+
+class TestMinimalPublisher:
+    def setup_method(self):
+        # 初始化ROS2
+        rclpy.init()
+        self.node = Node('test_node')
+        self.received_data = []
+        
+        # 创建订阅者，接收发布者发布的数据
+        self.subscription = self.node.create_subscription(
+            String,
+            'topic',
+            self.listener_callback,
+            10)
+    
+    def teardown_method(self):
+        # 关闭ROS2
+        self.node.destroy_node()
+        rclpy.shutdown()
+    
+    def listener_callback(self, msg):
+        # 保存接收到的数据
+        self.received_data.append(msg.data)
+    
+    def test_publisher(self):
+        # 创建发布者节点
+        publisher = MinimalPublisher()
+        
+        # 运行1秒，让发布者发布数据
+        import time
+        start_time = time.time()
+        while time.time() - start_time < 1.0:
+            rclpy.spin_once(publisher, timeout_sec=0.1)
+            rclpy.spin_once(self.node, timeout_sec=0.1)
+        
+        # 验证是否收到数据
+        assert len(self.received_data) > 0, "没有收到发布者发布的数据"
+        assert any('Hello ROS2!' in data for data in self.received_data), "收到的数据不符合预期"
+        
+        publisher.destroy_node()
+
+if __name__ == '__main__':
+    pytest.main(['-v', __file__])</textarea>
+                        </div>
+                    </li>
+                    <li><strong>实践指导</strong>：
+                        <ol>
+                            <li>创建测试文件，编写测试用例</li>
+                            <li>使用ros2 test命令运行测试</li>
+                            <li>使用rqt工具查看测试过程中的节点状态和话题数据</li>
+                            <li>分析测试结果，修复发现的问题</li>
+                            <li>使用coverage.py测量测试覆盖率</li>
+                        </ol>
+                    </li>
+                    <li><strong>注意事项</strong>：
+                        <ul>
+                            <li>测试用例应该是独立的，不依赖于其他测试用例的执行顺序</li>
+                            <li>测试用例应该包含明确的断言，验证预期结果</li>
+                            <li>使用rqt工具可以帮助调试测试过程中的问题</li>
+                            <li>定期运行测试，确保代码的质量</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h4>3. ROS/ROS2节点测试</h4>
+                <ul>
+                    <li><strong>理论知识</strong>：
+                        <ul>
+                            <li><strong>话题测试</strong>：验证节点间通过话题进行的数据传输是否正常，包括数据格式、频率、内容的正确性</li>
+                            <li><strong>服务测试</strong>：验证节点提供的服务是否正常响应，包括请求格式、响应内容、错误处理的正确性</li>
+                            <li><strong>动作测试</strong>：验证节点提供的动作服务是否正常执行，包括目标发送、反馈接收、结果返回的正确性</li>
+                            <li><strong>测试用例编写规范</strong>：
+                                <ul>
+                                    <li>测试用例应该是独立的，不依赖于其他测试用例的执行顺序</li>
+                                    <li>测试用例应该包含明确的断言，验证预期结果</li>
+                                    <li>测试用例应该具有描述性，便于理解其测试目的</li>
+                                    <li>测试用例应该覆盖正常情况、边界情况和异常情况</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><strong>第一性原理分析</strong>：从ROS/ROS2核心组件的本质（节点间通过不同通信方式交换数据）出发，理解节点测试的核心方法——验证每种通信方式的功能正确性</li>
+                    <li><strong>生活化类比</strong>：
+                        <ul>
+                            <li>将话题测试类比为测试道路的交通流量和安全性，确保车辆（数据）能够按照规则（话题类型）正常行驶</li>
+                            <li>将服务测试类比为测试商店的服务质量，确保顾客（客户端节点）的请求能够得到正确的响应</li>
+                            <li>将动作测试类比为测试外卖服务，确保订单（目标）能够被正确处理，顾客能够收到实时更新（反馈）和最终结果</li>
+                        </ul>
+                    </li>
+                    <li><strong>实例说明</strong>：
+                        <div class="code-editor-container">
+                            <div class="code-editor-header">
+                                <div class="code-editor-title">ROS2服务节点测试示例</div>
+                            </div>
+                            <textarea id="ros2-service-test-editor">#!/usr/bin/env python3
+import rclpy
+from rclpy.node import Node
+import pytest
+from example_interfaces.srv import AddTwoInts
+
+class MinimalService(Node):
+    def __init__(self):
+        super().__init__('minimal_service')
+        self.srv = self.create_service(AddTwoInts, 'add_two_ints', self.add_two_ints_callback)
+
+    def add_two_ints_callback(self, request, response):
+        response.sum = request.a + request.b
+        self.get_logger().info(f'Request received: a={request.a}, b={request.b}, sum={response.sum}')
+        return response
+
+class TestMinimalService:
+    def setup_method(self):
+        # 初始化ROS2
+        rclpy.init()
+        self.node = Node('test_node')
+        
+        # 创建服务客户端
+        self.client = self.node.create_client(AddTwoInts, 'add_two_ints')
+        
+        # 等待服务可用
+        while not self.client.wait_for_service(timeout_sec=1.0):
+            self.node.get_logger().info('Service not available, waiting again...')
+    
+    def teardown_method(self):
+        # 关闭ROS2
+        self.node.destroy_client(self.client)
+        self.node.destroy_node()
+        rclpy.shutdown()
+    
+    def test_service(self):
+        # 创建服务节点
+        service = MinimalService()
+        
+        # 创建请求
+        request = AddTwoInts.Request()
+        request.a = 10
+        request.b = 5
+        
+        # 发送请求
+        future = self.client.call_async(request)
+        
+        # 等待响应
+        import time
+        start_time = time.time()
+        while time.time() - start_time < 1.0:
+            rclpy.spin_once(service, timeout_sec=0.1)
+            rclpy.spin_once(self.node, timeout_sec=0.1)
+            if future.done():
+                break
+        
+        # 验证响应
+        assert future.done(), "服务没有在超时时间内返回响应"
+        response = future.result()
+        assert response.sum == 15, f"服务返回的结果不符合预期，预期15，实际{response.sum}"
+        
+        service.destroy_node()
+
+if __name__ == '__main__':
+    pytest.main(['-v', __file__])</textarea>
+                        </div>
+                    </li>
+                    <li><strong>实践指导</strong>：
+                        <ol>
+                            <li>根据节点的通信方式，选择合适的测试方法（话题测试、服务测试或动作测试）</li>
+                            <li>编写测试用例，覆盖正常情况、边界情况和异常情况</li>
+                            <li>运行测试用例，查看测试结果</li>
+                            <li>使用rqt工具查看测试过程中的节点状态和通信情况</li>
+                            <li>分析测试结果，修复发现的问题</li>
+                            <li>优化测试用例，提高测试覆盖率</li>
+                        </ol>
+                    </li>
+                    <li><strong>注意事项</strong>：
+                        <ul>
+                            <li>测试用例应该是独立的，不依赖于其他测试用例的执行顺序</li>
+                            <li>测试用例应该包含明确的断言，验证预期结果</li>
+                            <li>使用rqt工具可以帮助调试测试过程中的问题</li>
+                            <li>定期运行测试，确保代码的质量</li>
+                            <li>测试用例应该随着代码的更新而更新，保持测试的有效性</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3 class="subsection-title">重点难点解析</h3>
+                <ul>
+                    <li><strong>重点</strong>：ROS/ROS2的核心组件和测试方法</li>
+                    <li><strong>难点</strong>：
+                        <ul>
+                            <li>ROS/ROS2的架构和节点通信机制：理解ROS1的master-slave架构和ROS2的DDS分布式架构</li>
+                            <li>ROS和ROS2的区别：掌握两者在通信机制、安全性、跨平台支持等方面的差异</li>
+                            <li>复杂系统的测试：如何设计有效的测试用例，覆盖复杂ROS/ROS2系统的各个组件和功能</li>
+                        </ul>
+                    </li>
+                    <li><strong>详细解析</strong>：
+                        <ul>
+                            <li><strong>ROS1和ROS2的架构对比</strong>：
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>特性</th>
+                                            <th>ROS1</th>
+                                            <th>ROS2</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>通信机制</td>
+                                            <td>基于TCPROS/UDPROS，中央节点管理器（master）</td>
+                                            <td>基于DDS，分布式架构，无中央节点</td>
+                                        </tr>
+                                        <tr>
+                                            <td>安全性</td>
+                                            <td>无内置安全机制</td>
+                                            <td>内置安全机制（身份验证、加密、访问控制）</td>
+                                        </tr>
+                                        <tr>
+                                            <td>跨平台支持</td>
+                                            <td>主要支持Linux</td>
+                                            <td>支持Linux、Windows、macOS、RTOS</td>
+                                        </tr>
+                                        <tr>
+                                            <td>实时性</td>
+                                            <td>有限的实时支持</td>
+                                            <td>更好的实时支持，支持RTPS</td>
+                                        </tr>
+                                        <tr>
+                                            <td>兼容性</td>
+                                            <td>不同版本间不兼容</td>
+                                            <td>更好的版本兼容性设计</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </li>
+                            <li><strong>节点测试的最佳实践</strong>：
+                                <ul>
+                                    <li>使用pytest进行单元测试，ros2test进行集成测试</li>
+                                    <li>测试用例应该覆盖正常情况、边界情况和异常情况</li>
+                                    <li>使用rqt工具监控测试过程中的节点状态和通信情况</li>
+                                    <li>使用coverage.py测量测试覆盖率，确保测试覆盖主要代码路径</li>
+                                    <li>测试用例应该是独立的，不依赖于其他测试用例的执行顺序</li>
+                                </ul>
+                            </li>
+                            <li><strong>ROS/ROS2命令行工具对比</strong>：
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>功能</th>
+                                            <th>ROS1命令</th>
+                                            <th>ROS2命令</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>创建工作空间</td>
+                                            <td>mkdir -p catkin_ws/src && cd catkin_ws && catkin_make</td>
+                                            <td>mkdir -p colcon_ws/src && cd colcon_ws && colcon build</td>
+                                        </tr>
+                                        <tr>
+                                            <td>创建功能包</td>
+                                            <td>catkin_create_pkg pkg_name [deps]</td>
+                                            <td>ros2 pkg create pkg_name --dependencies [deps]</td>
+                                        </tr>
+                                        <tr>
+                                            <td>运行节点</td>
+                                            <td>rosrun pkg_name node_name</td>
+                                            <td>ros2 run pkg_name node_name</td>
+                                        </tr>
+                                        <tr>
+                                            <td>查看话题列表</td>
+                                            <td>rostopic list</td>
+                                            <td>ros2 topic list</td>
+                                        </tr>
+                                        <tr>
+                                            <td>查看节点列表</td>
+                                            <td>rosnode list</td>
+                                            <td>ros2 node list</td>
+                                        </tr>
+                                        <tr>
+                                            <td>查看服务列表</td>
+                                            <td>rosservice list</td>
+                                            <td>ros2 service list</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3 class="subsection-title">配套练习</h3>
+                <ol>
+                    <li><strong>基础练习：ROS/ROS2环境配置和示例运行</strong>
+                        <ul>
+                            <li><strong>练习目标</strong>：掌握ROS/ROS2环境的安装和配置方法，能够运行示例节点</li>
+                            <li><strong>练习内容</strong>：
+                                <ol>
+                                    <li>安装ROS2 Humble版本</li>
+                                    <li>创建ROS2工作空间和功能包</li>
+                                    <li>下载并编译ROS2示例包</li>
+                                    <li>运行talker和listener示例节点</li>
+                                    <li>使用rqt_graph查看节点关系</li>
+                                </ol>
+                            </li>
+                            <li><strong>预期结果</strong>：能够成功安装ROS2环境，运行示例节点，并查看节点间的通信关系</li>
+                            <li><strong>评估标准</strong>：
+                                <ul>
+                                    <li>ROS2环境安装成功，能够正常执行ros2命令</li>
+                                    <li>能够成功编译和运行示例节点</li>
+                                    <li>能够使用rqt_graph查看节点关系</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><strong>进阶练习：编写ROS/ROS2话题发布者和订阅者节点</strong>
+                        <ul>
+                            <li><strong>练习目标</strong>：掌握ROS/ROS2话题通信机制，能够编写简单的话题发布者和订阅者节点</li>
+                            <li><strong>练习内容</strong>：
+                                <ol>
+                                    <li>创建ROS2功能包</li>
+                                    <li>编写话题发布者节点，发布自定义消息</li>
+                                    <li>编写话题订阅者节点，接收并处理自定义消息</li>
+                                    <li>编译并运行节点，验证话题通信是否正常</li>
+                                    <li>使用ros2 topic命令查看话题数据</li>
+                                </ol>
+                            </li>
+                            <li><strong>预期结果</strong>：能够成功编写和运行话题发布者和订阅者节点，实现节点间的数据通信</li>
+                            <li><strong>评估标准</strong>：
+                                <ul>
+                                    <li>节点能够正常编译和运行</li>
+                                    <li>发布者能够正确发布数据</li>
+                                    <li>订阅者能够正确接收和处理数据</li>
+                                    <li>代码结构清晰，符合ROS2编程规范</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><strong>综合练习：编写ROS/ROS2服务和动作节点</strong>
+                        <ul>
+                            <li><strong>练习目标</strong>：掌握ROS/ROS2服务和动作通信机制，能够编写简单的服务和动作节点</li>
+                            <li><strong>练习内容</strong>：
+                                <ol>
+                                    <li>编写服务节点，提供加法运算服务</li>
+                                    <li>编写客户端节点，调用加法运算服务</li>
+                                    <li>编写动作服务器节点，提供长时间运行的任务</li>
+                                    <li>编写动作客户端节点，发送目标并接收反馈</li>
+                                    <li>编译并运行节点，验证服务和动作通信是否正常</li>
+                                </ol>
+                            </li>
+                            <li><strong>预期结果</strong>：能够成功编写和运行服务和动作节点，实现节点间的请求-响应和长时间任务执行</li>
+                            <li><strong>评估标准</strong>：
+                                <ul>
+                                    <li>服务节点能够正常响应客户端请求</li>
+                                    <li>动作服务器能够正确执行任务并返回结果</li>
+                                    <li>动作客户端能够接收实时反馈</li>
+                                    <li>代码结构清晰，符合ROS2编程规范</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><strong>测试练习：使用pytest和ros2test编写测试用例</strong>
+                        <ul>
+                            <li><strong>练习目标</strong>：掌握ROS/ROS2节点的测试方法，能够编写和运行测试用例</li>
+                            <li><strong>练习内容</strong>：
+                                <ol>
+                                    <li>为之前编写的话题发布者和订阅者节点编写测试用例</li>
+                                    <li>为之前编写的服务节点编写测试用例</li>
+                                    <li>使用pytest运行单元测试</li>
+                                    <li>使用ros2 test运行集成测试</li>
+                                    <li>分析测试结果，修复发现的问题</li>
+                                </ol>
+                            </li>
+                            <li><strong>预期结果</strong>：能够成功编写和运行测试用例，覆盖节点的主要功能</li>
+                            <li><strong>评估标准</strong>：
+                                <ul>
+                                    <li>测试用例能够正常运行</li>
+                                    <li>测试覆盖率达到80%以上</li>
+                                    <li>能够发现并修复节点中的问题</li>
+                                    <li>测试用例编写规范，便于维护</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ol>
+            </section>
+
+            <!-- 阶段五：仿真平台应用 -->
+            <section id="stage-5" class="content-block">
+                <h2 class="section-title">阶段五：仿真平台应用（4周）</h2>
+                
+                <h3 class="subsection-title">学习目标</h3>
+                <ul>
+                    <li>理解仿真平台的基本概念和应用场景</li>
+                    <li>掌握Gazebo和CoppeliaSim仿真平台的基本使用方法</li>
+                    <li>能够实现仿真平台与ROS/ROS2的集成</li>
+                    <li>能够进行简单的机器人仿真测试</li>
+                    <li>理解物理引擎的基本原理</li>
+                    <li>能够创建复杂的仿真场景和模型</li>
+                    <li>能够使用仿真平台进行算法验证和功能测试</li>
+                </ul>
+
+                <h3 class="subsection-title">学习内容</h3>
+                
+                <h4>1. 仿真平台基础</h4>
+                <ul>
+                    <li><strong>理论知识</strong>：
+                        <ul>
+                            <li><strong>基本概念</strong>：仿真平台是一种软件工具，用于在虚拟环境中模拟真实世界的物理现象和系统行为</li>
+                            <li><strong>应用场景</strong>：
+                                <ul>
+                                    <li>机器人算法验证：在虚拟环境中测试运动控制、路径规划等算法</li>
+                                    <li>机器人设计：评估不同设计方案的性能和可行性</li>
+                                    <li>机器人培训：为操作人员提供虚拟培训环境</li>
+                                    <li>系统集成测试：测试机器人系统与其他设备的集成效果</li>
+                                </ul>
+                            </li>
+                            <li><strong>常用仿真平台比较</strong>：
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>特性</th>
+                                            <th>Gazebo</th>
+                                            <th>CoppeliaSim</th>
+                                            <th>Webots</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>开源性</td>
+                                            <td>开源</td>
+                                            <td>商业软件（有免费版）</td>
+                                            <td>开源</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </li>
+                            <li><strong>物理引擎基本原理</strong>：
+                                <ul>
+                                    <li>刚体动力学：模拟物体的运动和碰撞</li>
+                                    <li>约束求解：模拟物体间的连接关系</li>
+                                    <li>碰撞检测：检测物体间的碰撞</li>
+                                    <li>渲染：将虚拟世界渲染成可视化图像</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><strong>第一性原理分析</strong>：从仿真的本质（在虚拟环境中模拟真实世界）出发，理解仿真平台的核心价值——降低开发成本、缩短开发周期、提高安全性</li>
+                    <li><strong>生活化类比</strong>：将仿真平台类比为建筑设计的3D模型，在实际建造前进行模拟和测试；将物理引擎类比为现实世界的物理规律，控制虚拟环境中物体的运动和交互</li>
+                    <li><strong>实践指导</strong>：
+                        <ol>
+                            <li>安装Gazebo或CoppeliaSim仿真平台</li>
+                            <li>了解仿真平台的基本界面和功能</li>
+                            <li>加载简单的机器人模型，查看其在虚拟环境中的表现</li>
+                            <li>学习使用物理引擎的基本参数设置</li>
+                        </ol>
+                    </li>
+                    <li><strong>注意事项</strong>：
+                        <ul>
+                            <li>仿真结果的准确性取决于物理引擎的参数设置和模型的精度</li>
+                            <li>仿真平台的性能可能受到计算机硬件的限制</li>
+                            <li>复杂模型的加载和仿真可能需要较长时间</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h4>2. Gazebo仿真平台</h4>
+                <ul>
+                    <li><strong>理论知识</strong>：
+                        <ul>
+                            <li><strong>基本概念</strong>：Gazebo是一个开源的机器人仿真平台，提供高精度的物理模拟和传感器仿真</li>
+                            <li><strong>核心组件</strong>：
+                                <ul>
+                                    <li>服务器（Server）：负责物理仿真和世界更新</li>
+                                    <li>客户端（Client）：提供可视化界面和用户交互</li>
+                                    <li>插件系统：允许扩展Gazebo的功能</li>
+                                </ul>
+                            </li>
+                            <li><strong>物理引擎</strong>：支持多种物理引擎，如ODE、Bullet、SimBody、DART</li>
+                            <li><strong>传感器模拟</strong>：支持多种传感器仿真，如激光雷达、摄像头、IMU、力传感器等</li>
+                            <li><strong>模型格式</strong>：使用SDF（Simulation Description Format）描述仿真世界和模型</li>
+                        </ul>
+                    </li>
+                    <li><strong>第一性原理分析</strong>：从仿真的本质（提供准确的物理模拟）出发，理解Gazebo的核心设计思想——物理准确性、可扩展性、开源性</li>
+                    <li><strong>生活化类比</strong>：将Gazebo类比为一个虚拟的机器人实验室，其中包含各种机器人模型、传感器和环境，可以在不实际构建物理原型的情况下进行实验和测试</li>
+                    <li><strong>实例说明</strong>：
+                        <div class="code-editor-container">
+                            <div class="code-editor-header">
+                                <div class="code-editor-title">Gazebo模型SDF示例</div>
+                            </div>
+                            <textarea id="gazebo-sdf-editor"><sdf version="1.7">
+  <model name="simple_box">
+    <pose>0 0 0.5 0 0 0</pose>
+    <static>false</static>
+    <link name="link">
+      <inertial>
+        <mass>1.0</mass>
+        <inertia>
+          <ixx>0.083</ixx>
+          <iyy>0.083</iyy>
+          <izz>0.083</izz>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyz>0.0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>1.0 1.0 1.0</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>1.0 1.0 1.0</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1.0 0.0 0.0 1.0</ambient>
+          <diffuse>1.0 0.0 0.0 1.0</diffuse>
+          <specular>1.0 0.0 0.0 1.0</specular>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf></textarea>
+                        </div>
+                    </li>
+                    <li><strong>实践指导</strong>：
+                        <ol>
+                            <li>安装Gazebo（通常随ROS2一起安装）</li>
+                            <li>启动Gazebo仿真环境</li>
+                            <li>加载现有的机器人模型</li>
+                            <li>创建简单的自定义模型</li>
+                            <li>添加传感器到模型中</li>
+                            <li>与ROS2集成，实现模型的控制和数据获取</li>
+                        </ol>
+                    </li>
+                    <li><strong>注意事项</strong>：
+                        <ul>
+                            <li>Gazebo的性能取决于计算机硬件，特别是CPU和GPU</li>
+                            <li>复杂模型需要详细的SDF文件描述</li>
+                            <li>与ROS2集成时需要确保两者版本兼容</li>
+                            <li>传感器仿真的准确性取决于模型的精度和物理引擎的设置</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h4>3. CoppeliaSim仿真平台</h4>
+                <ul>
+                    <li><strong>理论知识</strong>：
+                        <ul>
+                            <li><strong>基本概念</strong>：CoppeliaSim（原V-REP）是一个功能强大的商业机器人仿真平台，提供直观的图形界面和灵活的编程接口</li>
+                            <li><strong>核心特性</strong>：
+                                <ul>
+                                    <li>直观的图形界面：支持拖拽式模型创建和编辑</li>
+                                    <li>多语言支持：支持Lua、Python、C++、Java等多种编程语言</li>
+                                    <li>实时仿真：支持实时物理模拟和渲染</li>
+                                    <li>丰富的模型库：包含多种机器人、传感器和环境模型</li>
+                                    <li>ROS/ROS2集成：原生支持与ROS/ROS2的集成</li>
+                                </ul>
+                            </li>
+                            <li><strong>工作模式</strong>：
+                                <ul>
+                                    <li>仿真模式：进行完整的物理仿真</li>
+                                    <li>同步模式：与外部程序实时同步</li>
+                                    <li>批处理模式：无图形界面运行仿真</li>
+                                </ul>
+                            </li>
+                            <li><strong>API接口</strong>：
+                                <ul>
+                                    <li>远程API：允许外部程序控制仿真</li>
+                                    <li>插件系统：允许扩展CoppeliaSim的功能</li>
+                                    <li>Lua脚本：内置Lua脚本支持，可直接在场景中编写脚本</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><strong>第一性原理分析</strong>：从仿真的本质（提供易用、灵活的仿真环境）出发，理解CoppeliaSim的核心设计思想——易用性、灵活性、多语言支持</li>
+                    <li><strong>生活化类比</strong>：将CoppeliaSim类比为一个虚拟的机器人舞台，用户可以在其中创建各种机器人表演场景，控制机器人的动作和行为，观察其在不同环境中的表现</li>
+                    <li><strong>实例说明</strong>：
+                        <div class="code-editor-container">
+                            <div class="code-editor-header">
+                                <div class="code-editor-title">CoppeliaSim Python远程API示例</div>
+                            </div>
+                            <textarea id="coppeliasim-python-editor">#!/usr/bin/env python3
+import time
+from coppeliasim_zmqremoteapi_client import RemoteAPIClient
+
+# 连接到CoppeliaSim
+client = RemoteAPIClient()
+sim = client.getObject('sim')
+
+# 启动仿真
+sim.startSimulation()
+
+# 获取关节句柄
+joint_handle = sim.getObject('/joint1')
+
+# 控制关节运动
+for i in range(100):
+    # 设置关节角度
+    angle = i * 0.1
+    sim.setJointTargetPosition(joint_handle, angle)
+    # 等待一小段时间
+    time.sleep(0.01)
+
+# 停止仿真
+sim.stopSimulation()
+print("仿真完成")</textarea>
+                        </div>
+                    </li>
+                    <li><strong>实践指导</strong>：
+                        <ol>
+                            <li>下载并安装CoppeliaSim</li>
+                            <li>熟悉CoppeliaSim的界面和基本操作</li>
+                            <li>加载现有的机器人模型</li>
+                            <li>使用Lua脚本控制模型运动</li>
+                            <li>使用Python远程API控制仿真</li>
+                            <li>与ROS2集成，实现模型的控制和数据获取</li>
+                        </ol>
+                    </li>
+                    <li><strong>注意事项</strong>：
+                        <ul>
+                            <li>CoppeliaSim是商业软件，需要购买许可证才能使用全部功能</li>
+                            <li>远程API通信可能会有延迟，影响实时性要求高的应用</li>
+                            <li>复杂场景的仿真可能会占用较多系统资源</li>
+                            <li>学习CoppeliaSim需要掌握其特有的API和工作流程</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3 class="subsection-title">重点难点解析</h3>
+                <ul>
+                    <li><strong>重点</strong>：Gazebo和CoppeliaSim的基本使用方法和与ROS/ROS2的集成</li>
+                    <li><strong>难点</strong>：
+                        <ul>
+                            <li>物理引擎的选择和配置：不同物理引擎在性能、准确性和功能上有所差异，需要根据具体应用选择合适的物理引擎</li>
+                            <li>复杂仿真场景的创建：如何创建包含多个机器人、传感器和环境的复杂仿真场景</li>
+                            <li>仿真平台与ROS/ROS2的集成：确保仿真平台能够与ROS/ROS2进行正确的数据交换</li>
+                            <li>仿真结果的准确性验证：如何验证仿真结果与真实环境中的表现是否一致</li>
+                        </ul>
+                    </li>
+                    <li><strong>详细解析</strong>：
+                        <ul>
+                            <li><strong>物理引擎的选择和配置建议</strong>：
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>物理引擎</th>
+                                            <th>特点</th>
+                                            <th>适用场景</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>ODE</td>
+                                            <td>计算速度快，稳定性好</td>
+                                            <td>快速仿真和实时应用</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Bullet</td>
+                                            <td>准确性高，支持多线程</td>
+                                            <td>高精度仿真</td>
+                                        </tr>
+                                        <tr>
+                                            <td>DART</td>
+                                            <td>学术研究常用，支持复杂动力学</td>
+                                            <td>学术研究和复杂动力学仿真</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </li>
+                            <li><strong>复杂仿真场景的创建方法</strong>：
+                                <ol>
+                                    <li>模块化设计：将场景分解为多个模块，如机器人模型、传感器、环境等</li>
+                                    <li>重用现有模型：利用仿真平台提供的模型库或开源社区共享的模型</li>
+                                    <li>使用脚本自动化：编写脚本来生成和配置复杂场景</li>
+                                    <li>分层设计：将场景分为不同层次，如地形层、建筑层、机器人层等</li>
+                                </ol>
+                            </li>
+                            <li><strong>仿真平台与ROS/ROS2集成的关键步骤</strong>：
+                                <ol>
+                                    <li>安装ROS/ROS2插件：确保仿真平台安装了对应的ROS/ROS2插件</li>
+                                    <li>配置环境变量：设置正确的ROS/ROS2环境变量</li>
+                                    <li>创建ROS/ROS2节点：在仿真平台中创建ROS/ROS2节点，发布和订阅话题</li>
+                                    <li>测试通信：验证仿真平台与ROS/ROS2之间的通信是否正常</li>
+                                    <li>调试和优化：根据实际需求调整通信频率和数据格式</li>
+                                </ol>
+                            </li>
+                            <li><strong>仿真结果的准确性验证方法</strong>：
+                                <ol>
+                                    <li>与真实物理实验对比：将仿真结果与真实物理实验数据进行对比</li>
+                                    <li>交叉验证：使用不同仿真平台或物理引擎进行相同场景的仿真，对比结果</li>
+                                    <li>灵敏度分析：分析仿真结果对参数变化的敏感程度</li>
+                                    <li>不确定性分析：评估仿真结果的不确定性范围</li>
+                                </ol>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3 class="subsection-title">配套练习</h3>
+                <ol>
+                    <li><strong>基础练习：仿真平台环境配置</strong>
+                        <ul>
+                            <li><strong>练习目标</strong>：掌握Gazebo和CoppeliaSim的安装和配置方法</li>
+                            <li><strong>练习内容</strong>：
+                                <ol>
+                                    <li>安装Gazebo 11版本</li>
+                                    <li>安装CoppeliaSim Edu版本</li>
+                                    <li>配置仿真平台的环境变量</li>
+                                    <li>启动仿真平台，熟悉基本界面和操作</li>
+                                    <li>加载并运行简单的仿真模型</li>
+                                </ol>
+                            </li>
+                            <li><strong>预期结果</strong>：能够成功安装和配置Gazebo和CoppeliaSim，启动仿真平台并运行简单模型</li>
+                            <li><strong>评估标准</strong>：
+                                <ul>
+                                    <li>仿真平台能够正常启动和运行</li>
+                                    <li>能够成功加载和运行示例模型</li>
+                                    <li>熟悉仿真平台的基本界面和操作</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><strong>进阶练习：创建仿真模型和场景</strong>
+                        <ul>
+                            <li><strong>练习目标</strong>：掌握仿真模型的创建和场景构建方法</li>
+                            <li><strong>练习内容</strong>：
+                                <ol>
+                                    <li>使用Gazebo的模型编辑器创建简单的立方体模型</li>
+                                    <li>为模型添加物理属性和视觉属性</li>
+                                    <li>创建包含多个模型的仿真场景</li>
+                                    <li>在CoppeliaSim中创建简单的机械臂模型</li>
+                                    <li>为机械臂添加关节约束和传感器</li>
+                                </ol>
+                            </li>
+                            <li><strong>预期结果</strong>：能够成功创建简单的仿真模型和场景，模型具有正确的物理属性和视觉属性</li>
+                            <li><strong>评估标准</strong>：
+                                <ul>
+                                    <li>模型能够正常加载和仿真</li>
+                                    <li>模型具有正确的物理属性和视觉属性</li>
+                                    <li>场景布局合理，包含多个交互元素</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><strong>综合练习：仿真平台与ROS/ROS2集成</strong>
+                        <ul>
+                            <li><strong>练习目标</strong>：掌握仿真平台与ROS/ROS2的集成方法</li>
+                            <li><strong>练习内容</strong>：
+                                <ol>
+                                    <li>安装ROS/ROS2与仿真平台的集成包</li>
+                                    <li>在Gazebo中创建ROS/ROS2节点，发布话题</li>
+                                    <li>编写ROS/ROS2节点订阅仿真平台发布的话题</li>
+                                    <li>使用ROS/ROS2控制仿真平台中的模型运动</li>
+                                    <li>验证仿真平台与ROS/ROS2之间的通信是否正常</li>
+                                </ol>
+                            </li>
+                            <li><strong>预期结果</strong>：能够成功实现仿真平台与ROS/ROS2的集成，实现数据交换和模型控制</li>
+                            <li><strong>评估标准</strong>：
+                                <ul>
+                                    <li>仿真平台能够与ROS/ROS2正常通信</li>
+                                    <li>能够通过ROS/ROS2控制仿真模型</li>
+                                    <li>能够从仿真平台获取传感器数据</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><strong>高级练习：算法验证和功能测试</strong>
+                        <ul>
+                            <li><strong>练习目标</strong>：掌握使用仿真平台进行算法验证和功能测试的方法</li>
+                            <li><strong>练习内容</strong>：
+                                <ol>
+                                    <li>在仿真平台中实现简单的PID控制算法</li>
+                                    <li>使用仿真平台测试PID控制算法的性能</li>
+                                    <li>实现简单的路径规划算法</li>
+                                    <li>使用仿真平台验证路径规划算法的正确性</li>
+                                    <li>编写测试脚本，自动化测试算法性能</li>
+                                </ol>
+                            </li>
+                            <li><strong>预期结果</strong>：能够成功使用仿真平台验证算法的正确性和性能，编写自动化测试脚本</li>
+                            <li><strong>评估标准</strong>：
+                                <ul>
+                                    <li>算法能够在仿真平台中正常运行</li>
+                                    <li>能够评估算法的性能指标</li>
+                                    <li>测试脚本能够自动化运行和评估算法</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ol>
+            </section>
+
+            <!-- 阶段六：CI/CD流水线搭建 -->
+            <section id="stage-6" class="content-block">
+                <h2 class="section-title">阶段六：CI/CD流水线搭建（4周）</h2>
+                
+                <h3 class="subsection-title">学习目标</h3>
+                <ul>
+                    <li>理解CI/CD的基本概念和优势</li>
+                    <li>掌握常用CI/CD工具（GitLab CI/CD、Jenkins、GitHub Actions）的基本使用方法</li>
+                    <li>能够搭建简单的CI/CD流水线，实现自动化测试和构建</li>
+                    <li>理解CI/CD流水线的设计原则和最佳实践</li>
+                    <li>能够集成自动化测试工具（pytest+allure+loguru）到CI/CD流水线中</li>
+                    <li>能够监控和优化CI/CD流水线的性能</li>
+                </ul>
+
+                <h3 class="subsection-title">学习内容</h3>
+                
+                <h4>1. CI/CD基础</h4>
+                <ul>
+                    <li><strong>理论知识</strong>：
+                        <ul>
+                            <li><strong>基本概念</strong>：
+                                <ul>
+                                    <li>CI（持续集成）：频繁地将代码集成到主干，每次集成都通过自动化构建和测试验证</li>
+                                    <li>CD（持续交付/部署）：持续交付是指将代码频繁地交付到预生产环境，持续部署是指将代码自动部署到生产环境</li>
+                                </ul>
+                            </li>
+                            <li><strong>优势</strong>：
+                                <ul>
+                                    <li>提高软件质量：通过自动化测试发现和修复问题</li>
+                                    <li>缩短开发周期：自动化构建和测试减少手动工作</li>
+                                    <li>降低风险：频繁集成减少集成问题</li>
+                                    <li>快速反馈：及时发现和修复问题</li>
+                                    <li>提高团队协作：促进团队成员频繁交流和协作</li>
+                                </ul>
+                            </li>
+                            <li><strong>基本流程</strong>：
+                                <ol>
+                                    <li>代码提交：开发者将代码提交到版本控制系统</li>
+                                    <li>自动构建：CI/CD工具自动构建代码</li>
+                                    <li>自动化测试：运行单元测试、集成测试等</li>
+                                    <li>部署：将构建结果部署到测试或生产环境</li>
+                                    <li>监控：监控应用程序的运行状态</li>
+                                </ol>
+                            </li>
+                            <li><strong>核心原则</strong>：
+                                <ul>
+                                    <li>频繁集成：每天多次集成代码</li>
+                                    <li>自动化测试：所有测试都应该自动化</li>
+                                    <li>快速反馈：及时通知开发者构建和测试结果</li>
+                                    <li>持续改进：不断优化CI/CD流程</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><strong>第一性原理分析</strong>：从软件开发生命周期的本质（提高软件质量、缩短开发周期）出发，理解CI/CD的核心价值——自动化、快速反馈、持续改进</li>
+                    <li><strong>生活化类比</strong>：将CI/CD类比为工厂的自动化生产线，从原材料（代码）到成品（软件）的全流程自动化，每个环节都有质量检查，确保最终产品的质量</li>
+                    <li><strong>实例说明</strong>：
+                        <div class="code-editor-container">
+                            <div class="code-editor-header">
+                                <div class="code-editor-title">GitHub Actions CI/CD流水线示例</div>
+                            </div>
+                            <textarea id="github-actions-editor">name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest allure-pytest loguru
+    - name: Run tests
+      run: |
+        pytest --alluredir=allure-results
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: allure-results
+        path: allure-results
+    - name: Generate Allure report
+      uses: simple-elf/allure-report-action@master
+      id: allure-report
+      with:
+        allure_results: allure-results
+        allure_report: allure-report
+    - name: Deploy to staging
+      if: github.ref == 'refs/heads/main'
+      run: |
+        echo "Deploying to staging environment..."
+        # Add your deployment commands here</textarea>
+                        </div>
+                    </li>
+                    <li><strong>实践指导</strong>：
+                        <ol>
+                            <li>选择合适的CI/CD工具（如GitHub Actions、GitLab CI/CD、Jenkins）</li>
+                            <li>设计CI/CD流水线，包括构建、测试、部署等阶段</li>
+                            <li>编写自动化测试脚本，确保代码质量</li>
+                            <li>配置CI/CD工具，连接到版本控制系统</li>
+                            <li>运行CI/CD流水线，验证流程的正确性</li>
+                        </ol>
+                    </li>
+                    <li><strong>注意事项</strong>：
+                        <ul>
+                            <li>确保CI/CD流水线的可靠性和稳定性</li>
+                            <li>避免流水线过于复杂，影响运行速度</li>
+                            <li>保护敏感信息，如API密钥、密码等</li>
+                            <li>定期备份CI/CD配置和构建结果</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h4>2. 常用CI/CD工具</h4>
+                <ul>
+                    <li><strong>理论知识</strong>：
+                        <ul>
+                            <li><strong>GitLab CI/CD</strong>：
+                                <ul>
+                                    <li>集成在GitLab中的CI/CD工具，无需额外安装</li>
+                                    <li>使用.gitlab-ci.yml配置流水线</li>
+                                    <li>支持Docker容器化构建</li>
+                                    <li>提供内置的CI/CD runners</li>
+                                    <li>支持多阶段流水线和并行作业</li>
+                                </ul>
+                            </li>
+                            <li><strong>Jenkins</strong>：
+                                <ul>
+                                    <li>开源的CI/CD工具，具有高度的灵活性和可扩展性</li>
+                                    <li>支持丰富的插件生态系统</li>
+                                    <li>支持多种版本控制系统和构建工具</li>
+                                    <li>提供Web界面配置和管理流水线</li>
+                                    <li>支持分布式构建</li>
+                                </ul>
+                            </li>
+                            <li><strong>GitHub Actions</strong>：
+                                <ul>
+                                    <li>集成在GitHub中的CI/CD工具</li>
+                                    <li>使用YAML文件配置工作流</li>
+                                    <li>支持矩阵构建和并行作业</li>
+                                    <li>提供丰富的市场动作（Actions）</li>
+                                    <li>支持多平台构建（Linux、Windows、macOS）</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><strong>工具对比</strong>：
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>特性</th>
+                                    <th>GitLab CI/CD</th>
+                                    <th>Jenkins</th>
+                                    <th>GitHub Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>集成度</td>
+                                    <td>与GitLab深度集成</td>
+                                    <td>需要单独安装和配置</td>
+                                    <td>与GitHub深度集成</td>
+                                </tr>
+                                <tr>
+                                    <td>配置方式</td>
+                                    <td>YAML文件</td>
+                                    <td>Web界面或Jenkinsfile</td>
+                                    <td>YAML文件</td>
+                                </tr>
+                                <tr>
+                                    <td>插件生态</td>
+                                    <td>中等</td>
+                                    <td>丰富</td>
+                                    <td>丰富的市场动作</td>
+                                </tr>
+                                <tr>
+                                    <td>易用性</td>
+                                    <td>容易上手</td>
+                                    <td>学习曲线较陡</td>
+                                    <td>容易上手</td>
+                                </tr>
+                                <tr>
+                                    <td>成本</td>
+                                    <td>开源免费，企业版收费</td>
+                                    <td>开源免费，企业支持收费</td>
+                                    <td>基于使用量计费，有免费额度</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </li>
+                    <li><strong>第一性原理分析</strong>：从CI/CD的本质（自动化构建、测试、部署）出发，理解常用CI/CD工具的核心设计思想——可配置、可扩展、易用性，确保工具能够适应不同的项目需求和团队规模</li>
+                    <li><strong>生活化类比</strong>：将CI/CD工具类比为自动化生产线的控制系统，负责协调和控制各个生产环节，确保生产过程的自动化和高效性</li>
+                    <li><strong>实例说明</strong>：
+                        <div class="code-editor-container">
+                            <div class="code-editor-header">
+                                <div class="code-editor-title">GitLab CI/CD流水线示例</div>
+                            </div>
+                            <textarea id="gitlab-ci-editor"># .gitlab-ci.yml
+image: python:3.10
+
+stages:
+  - build
+  - test
+  - deploy
+
+build:
+  stage: build
+  script:
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+    - python setup.py build
+  artifacts:
+    paths:
+      - dist/
+
+.test-template:
+  stage: test
+  script:
+    - pip install pytest allure-pytest loguru
+    - pytest --alluredir=allure-results
+  artifacts:
+    paths:
+      - allure-results/
+
+# 并行测试
+unit-test:
+  extends: .test-template
+  script:
+    - pytest -k "unit" --alluredir=allure-results
+
+integration-test:
+  extends: .test-template
+  script:
+    - pytest -k "integration" --alluredir=allure-results
+
+deploy:
+  stage: deploy
+  only:
+    - main
+  script:
+    - echo "Deploying to production..."
+    # 添加部署命令
+    - curl -X POST -d @dist/app.tar.gz https://deploy.example.com/api/v1/deploy</textarea>
+                        </div>
+                    </li>
+                    <li><strong>实践指导</strong>：
+                        <ol>
+                            <li>根据项目需求和团队规模选择合适的CI/CD工具</li>
+                            <li>学习所选工具的基本配置和使用方法</li>
+                            <li>从简单的流水线开始，逐步扩展功能</li>
+                            <li>使用模板和变量提高流水线的可维护性</li>
+                            <li>定期审查和优化CI/CD流水线</li>
+                        </ol>
+                    </li>
+                    <li><strong>注意事项</strong>：
+                        <ul>
+                            <li>保护CI/CD工具中的敏感信息，使用密钥管理功能</li>
+                            <li>合理设置流水线的触发条件，避免不必要的构建</li>
+                            <li>优化构建时间，提高流水线效率</li>
+                            <li>确保CI/CD环境与生产环境尽可能一致</li>
+                            <li>监控CI/CD流水线的运行状态，及时发现和解决问题</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h4>3. CI/CD流水线搭建</h4>
+                <ul>
+                    <li><strong>理论知识</strong>：流水线的设计原则、核心组件、自动化测试的集成、流水线的触发条件、通知机制</li>
+                    <li><strong>第一性原理分析</strong>：从流水线的本质（自动化执行一系列任务）出发，理解CI/CD流水线的核心设计思想——模块化、可复用、可监控</li>
+                    <li><strong>生活化类比</strong>：将CI/CD流水线类比为组装家具的说明书，按照步骤完成整个流程</li>
+                </ul>
+
+                <h3 class="subsection-title">重点难点解析</h3>
+                <ul>
+                    <li><strong>重点</strong>：CI/CD的基本概念和流水线搭建方法</li>
+                    <li><strong>难点</strong>：CI/CD流水线的设计和配置、自动化测试的集成、流水线的安全性、流水线的性能优化</li>
+                    <li><strong>详细解析</strong>：
+                        <ul>
+                            <li><strong>CI/CD流水线的设计和配置</strong>：
+                                <ol>
+                                    <li>从第一性原理出发，明确流水线的核心目标——提高软件质量、缩短开发周期、降低交付风险</li>
+                                    <li>采用模块化设计，将流水线分为构建、测试、部署等独立阶段，便于维护和扩展</li>
+                                    <li>使用YAML或Jenkinsfile等声明式配置，提高配置的可读性和可维护性</li>
+                                    <li>合理设置流水线的触发条件，如代码提交、合并请求、定时触发等</li>
+                                    <li>使用变量和模板提高流水线的可重用性</li>
+                                </ol>
+                            </li>
+                            <li><strong>自动化测试的集成</strong>：
+                                <ol>
+                                    <li>将自动化测试分为单元测试、集成测试、系统测试等不同层次，分别集成到流水线的不同阶段</li>
+                                    <li>使用pytest+allure+loguru等工具生成详细的测试报告</li>
+                                    <li>设置测试失败的处理策略，如立即终止流水线或继续执行后续阶段</li>
+                                    <li>集成测试覆盖率工具，确保代码覆盖率达到目标要求</li>
+                                </ol>
+                            </li>
+                            <li><strong>流水线的安全性</strong>：
+                                <ol>
+                                    <li>使用密钥管理工具存储敏感信息，如API密钥、密码等，避免硬编码到配置文件中</li>
+                                    <li>设置合理的访问控制，限制流水线的查看和执行权限</li>
+                                    <li>定期扫描依赖库的安全漏洞，及时更新有漏洞的依赖</li>
+                                    <li>使用Docker容器化构建，避免环境污染和安全风险</li>
+                                </ol>
+                            </li>
+                            <li><strong>流水线的性能优化</strong>：
+                                <ol>
+                                    <li>使用并行执行，如并行运行测试用例、并行构建多个组件等</li>
+                                    <li>使用缓存机制，如缓存依赖库、构建产物等，减少重复构建时间</li>
+                                    <li>优化测试用例，减少测试执行时间</li>
+                                    <li>使用高性能的CI/CD runners，提高构建和测试速度</li>
+                                </ol>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3 class="subsection-title">配套练习</h3>
+                <ol>
+                    <li><strong>基础练习：CI/CD工具的安装和配置</strong>
+                        <ul>
+                            <li><strong>练习目标</strong>：掌握CI/CD工具的安装和基本配置方法</li>
+                            <li><strong>练习内容</strong>：
+                                <ol>
+                                    <li>安装GitLab CI/CD或Jenkins</li>
+                                    <li>配置CI/CD工具的基本参数</li>
+                                    <li>连接CI/CD工具到版本控制系统</li>
+                                    <li>创建简单的流水线配置文件</li>
+                                </ol>
+                            </li>
+                            <li><strong>预期结果</strong>：能够成功安装和配置CI/CD工具，创建并运行简单的流水线</li>
+                            <li><strong>评估标准</strong>：
+                                <ul>
+                                    <li>CI/CD工具能够正常启动和运行</li>
+                                    <li>能够成功连接到版本控制系统</li>
+                                    <li>能够创建并运行简单的流水线</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><strong>进阶练习：GitLab CI/CD和Jenkins流水线搭建</strong>
+                        <ul>
+                            <li><strong>练习目标</strong>：掌握GitLab CI/CD和Jenkins的流水线搭建方法</li>
+                            <li><strong>练习内容</strong>：
+                                <ol>
+                                    <li>使用GitLab CI/CD创建包含构建、测试、部署阶段的流水线</li>
+                                    <li>使用Jenkins创建包含构建、测试、部署阶段的流水线</li>
+                                    <li>集成pytest+allure+loguru到流水线中</li>
+                                    <li>配置流水线的触发条件和通知机制</li>
+                                </ol>
+                            </li>
+                            <li><strong>预期结果</strong>：能够成功创建包含多个阶段的流水线，集成自动化测试工具，并配置触发条件和通知机制</li>
+                            <li><strong>评估标准</strong>：
+                                <ul>
+                                    <li>流水线能够正常执行所有阶段</li>
+                                    <li>能够生成详细的测试报告</li>
+                                    <li>能够正确触发流水线并发送通知</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><strong>综合练习：GitHub Actions完整CI/CD流水线搭建</strong>
+                        <ul>
+                            <li><strong>练习目标</strong>：掌握GitHub Actions的完整CI/CD流水线搭建方法</li>
+                            <li><strong>练习内容</strong>：
+                                <ol>
+                                    <li>创建GitHub仓库，包含Python项目代码</li>
+                                    <li>编写GitHub Actions workflow文件，包含构建、测试、部署阶段</li>
+                                    <li>集成pytest+allure+loguru到流水线中</li>
+                                    <li>配置流水线的缓存机制和并行执行</li>
+                                    <li>配置流水线的安全机制，如密钥管理、访问控制等</li>
+                                    <li>测试流水线的完整执行流程</li>
+                                </ol>
+                            </li>
+                            <li><strong>预期结果</strong>：能够成功创建完整的GitHub Actions流水线，包含构建、测试、部署等阶段，集成自动化测试工具，并配置缓存、并行执行和安全机制</li>
+                            <li><strong>评估标准</strong>：
+                                <ul>
+                                    <li>流水线能够正常执行所有阶段</li>
+                                    <li>能够生成详细的测试报告</li>
+                                    <li>能够正确使用缓存和并行执行，提高流水线性能</li>
+                                    <li>能够正确管理敏感信息，确保流水线安全</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ol>
+            </section>
+
+            <!-- 阶段七：运动控制算法与传感器数据处理测试 -->
+            <section id="stage-7" class="content-block">
+                <h2 class="section-title">阶段七：运动控制算法与传感器数据处理测试（6周）</h2>
+                
+                <h3 class="subsection-title">学习目标</h3>
+                <ul>
+                    <li>理解运动控制算法的基本概念和原理</li>
+                    <li>掌握PID控制算法的基本原理和实现</li>
+                    <li>理解传感器数据处理的基本方法</li>
+                    <li>能够实现简单的运动控制算法和传感器数据处理算法</li>
+                    <li>能够测试运动控制算法和传感器数据处理算法的性能</li>
+                    <li>理解GB/T标准中关于运动控制和传感器数据处理的相关要求</li>
+                    <li>了解常用的商业运动控制和传感器数据处理工具</li>
+                </ul>
+
+                <h3 class="subsection-title">学习内容</h3>
+                
+                <h4>1. 运动控制算法基础</h4>
+                <ul>
+                    <li><strong>理论知识</strong>：
+                        <ul>
+                            <li><strong>运动控制的基本概念</strong>：运动控制是指对物体的位置、速度、加速度等进行精确控制的技术，广泛应用于机器人、自动化生产线等领域</li>
+                            <li><strong>PID控制算法</strong>：
+                                <ul>
+                                    <li>比例（P）控制：根据当前误差的大小进行控制，误差越大，控制量越大</li>
+                                    <li>积分（I）控制：根据误差的累积进行控制，消除稳态误差</li>
+                                    <li>微分（D）控制：根据误差的变化率进行控制，提高系统的响应速度和稳定性</li>
+                                    <li>PID参数的调优方法：经验法、Ziegler-Nichols方法、试凑法、遗传算法等</li>
+                                </ul>
+                            </li>
+                            <li><strong>轨迹规划</strong>：
+                                <ul>
+                                    <li>关节空间轨迹规划：直接在关节空间中规划运动轨迹，如多项式插值、B样条插值等</li>
+                                    <li>笛卡尔空间轨迹规划：在笛卡尔空间中规划运动轨迹，如直线插值、圆弧插值等</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><strong>GB/T标准参考</strong>：
+                        <ul>
+                            <li>GB/T 19656-2017《工业机器人 词汇》：定义了工业机器人的基本术语和定义</li>
+                            <li>GB/T 30856-2014《工业机器人 性能规范及其试验方法》：规定了工业机器人的性能指标和测试方法</li>
+                            <li>GB/T 38265.1-2019《工业自动化系统与集成 机器人技术 工业机器人编程和操作 第1部分：通用原则》：规定了工业机器人编程和操作的通用原则</li>
+                        </ul>
+                    </li>
+                    <li><strong>商业工具推荐</strong>：
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>工具名称</th>
+                                    <th>核心功能</th>
+                                    <th>适用场景</th>
+                                    <th>定价</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>ABB RobotStudio</td>
+                                    <td>机器人仿真、编程、离线编程</td>
+                                    <td>ABB机器人的仿真和编程</td>
+                                    <td>商业软件，价格根据具体需求而定</td>
+                                </tr>
+                                <tr>
+                                    <td>KUKA.Sim</td>
+                                    <td>机器人仿真、离线编程、碰撞检测</td>
+                                    <td>KUKA机器人的仿真和编程</td>
+                                    <td>商业软件，价格根据具体需求而定</td>
+                                </tr>
+                                <tr>
+                                    <td>MATLAB/Simulink</td>
+                                    <td>控制系统设计、仿真、代码生成</td>
+                                    <td>控制系统设计和仿真</td>
+                                    <td>商业软件，学生版约1000元/年</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </li>
+                    <li><strong>第一性原理分析</strong>：从控制的本质（根据反馈调整输出）出发，理解运动控制算法的核心设计思想——准确性、稳定性、快速性。控制的根本目的是使被控对象的输出尽可能接近期望值，运动控制算法通过不断调整控制量来实现这一目标。</li>
+                    <li><strong>生活化类比</strong>：将PID控制算法类比为调节房间温度。当房间温度低于设定值时，空调会根据温度差（比例）、温度差的持续时间（积分）和温度变化的速度（微分）来调整制冷/制热功率，使房间温度保持稳定。</li>
+                    <li><strong>实例说明</strong>：
+                        <div class="code-editor-container">
+                            <div class="code-editor-header">
+                                <div class="code-editor-title">PID控制算法实现示例</div>
+                            </div>
+                            <textarea id="pid-implementation-editor">class PIDController:
+    def __init__(self, kp=1.0, ki=0.0, kd=0.0):
+        """PID控制器初始化"""
+        self.kp = kp  # 比例系数
+        self.ki = ki  # 积分系数
+        self.kd = kd  # 微分系数
+        self.prev_error = 0.0  # 上一次误差
+        self.integral = 0.0  # 积分项
+    
+    def compute(self, setpoint, feedback, dt):
+        """计算PID输出
+        
+        Args:
+            setpoint: 设定值
+            feedback: 反馈值
+            dt: 时间间隔（秒）
+            
+        Returns:
+            控制输出值
+        """
+        # 计算当前误差
+        error = setpoint - feedback
+        
+        # 计算积分项
+        self.integral += error * dt
+        
+        # 计算微分项
+        derivative = (error - self.prev_error) / dt
+        
+        # 计算PID输出
+        output = self.kp * error + self.ki * self.integral + self.kd * derivative
+        
+        # 更新上一次误差
+        self.prev_error = error
+        
+        return output
+    
+    def reset(self):
+        """重置PID控制器"""
+        self.prev_error = 0.0
+        self.integral = 0.0
+
+# 使用示例
+if __name__ == "__main__":
+    pid = PIDController(kp=1.0, ki=0.1, kd=0.05)
+    
+    setpoint = 10.0  # 设定值
+    feedback = 0.0  # 初始反馈值
+    dt = 0.1  # 时间间隔
+    
+    for i in range(100):
+        # 计算控制输出
+        output = pid.compute(setpoint, feedback, dt)
+        
+        # 模拟被控对象（这里使用简单的一阶惯性系统）
+        feedback += output * dt * 0.5
+        
+        print(f"第{i+1}次迭代: 设定值={setpoint:.2f}, 反馈值={feedback:.2f}, 输出={output:.2f}")
+        
+        # 引入微小延迟
+        import time
+        time.sleep(0.1)</textarea>
+                        </div>
+                    </li>
+                    <li><strong>实践指导</strong>：
+                        <ol>
+                            <li>理解PID控制算法的基本原理和参数作用</li>
+                            <li>实现简单的PID控制器，进行仿真测试</li>
+                            <li>学习使用MATLAB/Simulink进行控制系统设计和仿真</li>
+                            <li>实践PID参数的调优方法，如Ziegler-Nichols方法</li>
+                            <li>学习轨迹规划算法，如多项式插值、B样条插值等</li>
+                        </ol>
+                    </li>
+                    <li><strong>注意事项</strong>：
+                        <ul>
+                            <li>PID参数的选择对系统性能影响很大，需要根据被控对象的特性进行调整</li>
+                            <li>积分饱和现象可能导致系统性能下降，需要采取抗积分饱和措施</li>
+                            <li>微分增益过大可能导致系统不稳定，需要合理设置微分系数</li>
+                            <li>轨迹规划时需要考虑机器人的物理限制，如关节速度、加速度限制等</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h4>2. 传感器数据处理基础</h4>
+                <ul>
+                    <li><strong>理论知识</strong>：
+                        <ul>
+                            <li><strong>传感器的基本概念</strong>：传感器是一种将物理量转换为电信号的装置，用于测量温度、压力、位移、速度等物理量</li>
+                            <li><strong>传感器的分类</strong>：
+                                <ul>
+                                    <li>按测量对象分类：温度传感器、压力传感器、位移传感器、速度传感器等</li>
+                                    <li>按工作原理分类：电阻式、电容式、电感式、压电式、光电式等</li>
+                                    <li>按输出信号分类：模拟传感器、数字传感器</li>
+                                </ul>
+                            </li>
+                            <li><strong>传感器数据处理的基本方法</strong>：
+                                <ul>
+                                    <li>滤波：去除噪声，提高数据的准确性</li>
+                                    <li>校准：消除传感器的系统误差</li>
+                                    <li>融合：结合多个传感器的数据，提高数据的可靠性和准确性</li>
+                                    <li>特征提取：从原始数据中提取有用的特征信息</li>
+                                </ul>
+                            </li>
+                            <li><strong>常用滤波算法</strong>：
+                                <ul>
+                                    <li>均值滤波：计算一段时间内数据的平均值，去除随机噪声</li>
+                                    <li>中值滤波：去除脉冲噪声，如盐椒噪声</li>
+                                    <li>卡尔曼滤波：适用于线性系统，能够估计系统状态</li>
+                                    <li>粒子滤波：适用于非线性系统，能够处理非高斯噪声</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><strong>GB/T标准参考</strong>：
+                        <ul>
+                            <li>GB/T 7665-2005《传感器通用术语》：定义了传感器的基本术语和定义</li>
+                            <li>GB/T 15478-2015《工业自动化系统 传感器和执行器的试验方法》：规定了传感器和执行器的试验方法</li>
+                            <li>GB/T 20438.1-2017《电气/电子/可编程电子安全相关系统的功能安全 第1部分：一般要求》：规定了安全相关系统中传感器的功能安全要求</li>
+                        </ul>
+                    </li>
+                    <li><strong>商业工具推荐</strong>：
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>工具名称</th>
+                                    <th>核心功能</th>
+                                    <th>适用场景</th>
+                                    <th>定价</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>NI LabVIEW</td>
+                                    <td>数据采集、分析、可视化</td>
+                                    <td>传感器数据采集和分析</td>
+                                    <td>商业软件，基础版约5000元</td>
+                                </tr>
+                                <tr>
+                                    <td>MathWorks Sensor Fusion and Tracking Toolbox</td>
+                                    <td>传感器融合、目标跟踪</td>
+                                    <td>传感器数据融合和目标跟踪</td>
+                                    <td>商业软件，约5000元/年</td>
+                                </tr>
+                                <tr>
+                                    <td>dSPACE</td>
+                                    <td>实时仿真、快速控制原型</td>
+                                    <td>实时控制系统开发和测试</td>
+                                    <td>商业软件，价格根据具体需求而定</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </li>
+                    <li><strong>第一性原理分析</strong>：从传感器的本质（将物理量转换为电信号）出发，理解传感器数据处理的核心价值——提高数据的准确性、可靠性和可用性。传感器输出的原始数据往往包含噪声和误差，需要通过数据处理来提高数据质量，为后续的控制和决策提供可靠依据。</li>
+                    <li><strong>生活化类比</strong>：将传感器数据处理类比为人类的感知系统。人类通过眼睛、耳朵等器官（传感器）获取外界信息，然后通过大脑（数据处理算法）进行分析和理解，过滤掉无用信息，提取有用信息，做出正确的决策。</li>
+                    <li><strong>实例说明</strong>：
+                        <div class="code-editor-container">
+                            <div class="code-editor-header">
+                                <div class="code-editor-title">传感器数据滤波示例</div>
+                            </div>
+                            <textarea id="sensor-filter-editor">import numpy as np
+import matplotlib.pyplot as plt
+
+# 生成带噪声的传感器数据
+def generate_sensor_data(n_points=100, noise_level=0.1):
+    """生成带噪声的传感器数据"""
+    time = np.linspace(0, 10, n_points)
+    # 真实信号（正弦波）
+    true_signal = np.sin(time)
+    # 添加高斯噪声
+    noise = np.random.normal(0, noise_level, n_points)
+    noisy_signal = true_signal + noise
+    return time, true_signal, noisy_signal
+
+# 均值滤波
+def mean_filter(signal, window_size=5):
+    """均值滤波"""
+    filtered_signal = np.zeros_like(signal)
+    half_window = window_size // 2
+    
+    for i in range(len(signal)):
+        start = max(0, i - half_window)
+        end = min(len(signal), i + half_window + 1)
+        filtered_signal[i] = np.mean(signal[start:end])
+    
+    return filtered_signal
+
+# 中值滤波
+def median_filter(signal, window_size=5):
+    """中值滤波"""
+    filtered_signal = np.zeros_like(signal)
+    half_window = window_size // 2
+    
+    for i in range(len(signal)):
+        start = max(0, i - half_window)
+        end = min(len(signal), i + half_window + 1)
+        filtered_signal[i] = np.median(signal[start:end])
+    
+    return filtered_signal
+
+# 主函数
+if __name__ == "__main__":
+    # 生成数据
+    time, true_signal, noisy_signal = generate_sensor_data(n_points=100, noise_level=0.2)
+    
+    # 应用滤波算法
+    mean_filtered = mean_filter(noisy_signal, window_size=5)
+    median_filtered = median_filter(noisy_signal, window_size=5)
+    
+    # 绘制结果
+    plt.figure(figsize=(10, 6))
+    plt.plot(time, true_signal, label="真实信号", color="blue", linewidth=2)
+    plt.plot(time, noisy_signal, label="带噪声信号", color="gray", alpha=0.5)
+    plt.plot(time, mean_filtered, label="均值滤波", color="red", linestyle="--")
+    plt.plot(time, median_filtered, label="中值滤波", color="green", linestyle="-")
+    
+    plt.xlabel("时间")
+    plt.ylabel("信号值")
+    plt.title("传感器数据滤波示例")
+    plt.legend()
+    plt.grid(True)
+    plt.show()</textarea>
+                        </div>
+                    </li>
+                    <li><strong>实践指导</strong>：
+                        <ol>
+                            <li>理解传感器的基本概念和分类</li>
+                            <li>学习常用的传感器数据处理方法，如滤波、校准、融合等</li>
+                            <li>实现简单的滤波算法，进行仿真测试</li>
+                            <li>学习使用NI LabVIEW或MATLAB进行传感器数据采集和分析</li>
+                            <li>实践传感器数据融合方法，如卡尔曼滤波、粒子滤波等</li>
+                        </ol>
+                    </li>
+                    <li><strong>注意事项</strong>：
+                        <ul>
+                            <li>不同类型的传感器需要不同的数据处理方法，需要根据传感器的特性选择合适的处理算法</li>
+                            <li>滤波算法的选择需要平衡滤波效果和实时性，复杂的滤波算法可能会导致延迟增加</li>
+                            <li>传感器校准是提高数据准确性的重要步骤，需要定期进行</li>
+                            <li>传感器数据融合需要考虑不同传感器的精度、采样率等因素</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h4>3. 运动控制算法测试</h4>
+                <ul>
+                    <li><strong>理论知识</strong>：
+                        <ul>
+                            <li><strong>运动控制算法测试的基本概念</strong>：运动控制算法测试是指对运动控制算法的性能进行评估和验证，确保其能够满足设计要求</li>
+                            <li><strong>测试指标</strong>：
+                                <ul>
+                                    <li>准确性：控制输出与设定值的偏差大小</li>
+                                    <li>稳定性：系统是否能够保持稳定运行，是否出现振荡</li>
+                                    <li>快速性：系统的响应速度，如上升时间、调整时间等</li>
+                                    <li>鲁棒性：系统对参数变化和外部干扰的抵抗能力</li>
+                                </ul>
+                            </li>
+                            <li><strong>测试方法</strong>：
+                                <ul>
+                                    <li>仿真测试：在仿真环境中测试算法性能，如MATLAB/Simulink</li>
+                                    <li>硬件在环测试：将算法运行在实际硬件上，通过仿真模型模拟被控对象</li>
+                                    <li>实际系统测试：在实际被控对象上测试算法性能</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><strong>第一性原理分析</strong>：从测试的本质（验证功能正确性）出发，理解运动控制算法测试的核心方法。测试的根本目的是验证算法是否能够满足设计要求，运动控制算法测试通过测量和分析算法的性能指标来实现这一目标。</li>
+                    <li><strong>生活化类比</strong>：将运动控制算法测试类比为测试汽车的驾驶性能。测试人员会测试汽车的加速性能、制动性能、转向性能等，评估汽车的驾驶性能是否满足设计要求。</li>
+                    <li><strong>实例说明</strong>：
+                        <div class="code-editor-container">
+                            <div class="code-editor-header">
+                                <div class="code-editor-title">运动控制算法测试示例</div>
+                            </div>
+                            <textarea id="motion-control-test-editor">import numpy as np
+import matplotlib.pyplot as plt
+from pid_controller import PIDController
+
+# 模拟被控对象（二阶系统）
+def被控对象模型(input_signal, prev_state, dt):
+    """
+    二阶系统模型：y'' + 2ζωn y' + ωn² y = ωn² u
+    其中：
+    - ζ：阻尼比
+    - ωn：固有频率
+    - u：输入信号
+    - y：输出信号
+    """
+    ζ = 0.7  # 阻尼比
+    ωn = 1.0  # 固有频率
+    
+    # 状态方程：
+    # x1 = y
+    # x2 = y'
+    # x1' = x2
+    # x2' = -2ζωn x2 - ωn² x1 + ωn² u
+    
+    x1_prev, x2_prev = prev_state
+    
+    x1_dot = x2_prev
+    x2_dot = -2 * ζ * ωn * x2_prev - ωn**2 * x1_prev + ωn**2 * input_signal
+    
+    # 使用欧拉法更新状态
+    x1_new = x1_prev + x1_dot * dt
+    x2_new = x2_prev + x2_dot * dt
+    
+    return (x1_new, x2_new), x1_new
+
+# 运动控制算法测试
+def test_motion_control_algorithm():
+    # 测试参数
+    setpoint = 1.0  # 设定值
+    dt = 0.01  # 时间步长
+    total_time = 10.0  # 总测试时间
+    n_steps = int(total_time / dt)  # 测试步数
+    
+    # 初始化PID控制器
+    pid = PIDController(kp=2.0, ki=0.5, kd=0.1)
+    
+    # 初始化状态
+    state = (0.0, 0.0)  # (位置, 速度)
+    output = 0.0  # 被控对象输出
+    
+    # 存储测试数据
+    time = np.zeros(n_steps)
+    setpoints = np.zeros(n_steps)
+    outputs = np.zeros(n_steps)
+    control_inputs = np.zeros(n_steps)
+    
+    # 运行测试
+    for i in range(n_steps):
+        time[i] = i * dt
+        setpoints[i] = setpoint
+        outputs[i] = output
+        
+        # 计算控制输入
+        control_input = pid.compute(setpoint, output, dt)
+        control_inputs[i] = control_input
+        
+        # 更新被控对象状态
+        state, output = 被控对象模型(control_input, state, dt)
+    
+    # 计算性能指标
+    # 稳态误差
+    steady_state_error = abs(setpoint - output)
+    # 上升时间（从10%到90%的时间）
+    rise_time_10 = time[np.where(outputs >= setpoint * 0.1)[0][0]]
+    rise_time_90 = time[np.where(outputs >= setpoint * 0.9)[0][0]]
+    rise_time = rise_time_90 - rise_time_10
+    # 调整时间（进入±5%误差带的时间）
+    tolerance = setpoint * 0.05
+    adjusted_indices = np.where(np.abs(outputs - setpoint) <= tolerance)[0]
+    settling_time = time[adjusted_indices[0]] if len(adjusted_indices) > 0 else total_time
+    
+    print(f"稳态误差: {steady_state_error:.4f}")
+    print(f"上升时间: {rise_time:.4f}秒")
+    print(f"调整时间: {settling_time:.4f}秒")
+    
+    # 绘制测试结果
+    plt.figure(figsize=(12, 8))
+    
+    # 绘制输出响应
+    plt.subplot(2, 1, 1)
+    plt.plot(time, setpoints, label="设定值", color="blue", linewidth=2)
+    plt.plot(time, outputs, label="输出响应", color="red", linewidth=2)
+    plt.axhline(y=setpoint * 1.05, color="green", linestyle="--", alpha=0.5, label="±5%误差带")
+    plt.axhline(y=setpoint * 0.95, color="green", linestyle="--", alpha=0.5)
+    plt.xlabel("时间 (秒)")
+    plt.ylabel("输出值")
+    plt.title("运动控制算法测试结果")
+    plt.legend()
+    plt.grid(True)
+    
+    # 绘制控制输入
+    plt.subplot(2, 1, 2)
+    plt.plot(time, control_inputs, label="控制输入", color="orange", linewidth=2)
+    plt.xlabel("时间 (秒)")
+    plt.ylabel("控制输入值")
+    plt.title("控制输入曲线")
+    plt.legend()
+    plt.grid(True)
+    
+    plt.tight_layout()
+    plt.show()
+
+# 主函数
+if __name__ == "__main__":
+    test_motion_control_algorithm()</textarea>
+                        </div>
+                    </li>
+                    <li><strong>实践指导</strong>：
+                        <ol>
+                            <li>理解运动控制算法测试的基本概念和测试指标</li>
+                            <li>学习常用的测试方法，如仿真测试、硬件在环测试、实际系统测试等</li>
+                            <li>实现简单的运动控制算法测试脚本</li>
+                            <li>学习使用MATLAB/Simulink进行控制系统测试</li>
+                            <li>实践硬件在环测试方法，如使用dSPACE等工具</li>
+                        </ol>
+                    </li>
+                    <li><strong>注意事项</strong>：
+                        <ul>
+                            <li>测试前需要明确测试目标和测试指标</li>
+                            <li>测试环境需要尽可能接近实际使用环境</li>
+                            <li>测试数据需要进行详细的分析和记录</li>
+                            <li>测试结果需要与设计要求进行比较，评估算法性能</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h4>4. 传感器数据处理测试</h4>
+                <ul>
+                    <li><strong>理论知识</strong>：
+                        <ul>
+                            <li><strong>传感器数据处理测试的基本概念</strong>：传感器数据处理测试是指对传感器数据处理算法的性能进行评估和验证，确保其能够满足设计要求</li>
+                            <li><strong>测试指标</strong>：
+                                <ul>
+                                    <li>准确性：处理后数据与真实值的偏差大小</li>
+                                    <li>实时性：数据处理的速度，如处理时间、延迟等</li>
+                                    <li>鲁棒性：算法对不同类型噪声和干扰的抵抗能力</li>
+                                    <li>稳定性：算法在长时间运行时的稳定性</li>
+                                </ul>
+                            </li>
+                            <li><strong>测试方法</strong>：
+                                <ul>
+                                    <li>仿真测试：使用合成数据或真实数据进行测试</li>
+                                    <li>硬件测试：在实际硬件上测试算法性能</li>
+                                    <li>对比测试：与其他算法或标准方法进行对比</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><strong>第一性原理分析</strong>：从测试的本质（验证功能正确性）出发，理解传感器数据处理测试的核心方法。测试的根本目的是验证算法是否能够满足设计要求，传感器数据处理测试通过测量和分析算法的性能指标来实现这一目标。</li>
+                    <li><strong>生活化类比</strong>：将传感器数据处理测试类比为测试人类的感知能力。测试人员会测试人类在不同环境下的视力、听力等感知能力，评估其感知能力是否满足要求。</li>
+                    <li><strong>实例说明</strong>：
+                        <div class="code-editor-container">
+                            <div class="code-editor-header">
+                                <div class="code-editor-title">传感器数据处理测试示例</div>
+                            </div>
+                            <textarea id="sensor-processing-test-editor">import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# 生成测试数据
+def generate_test_data(n_samples=1000, sampling_rate=100, true_frequency=5.0, noise_level=0.5):
+    """生成带噪声的正弦波数据"""
+    time = np.arange(n_samples) / sampling_rate
+    # 真实信号
+    true_signal = np.sin(2 * np.pi * true_frequency * time)
+    # 添加高斯噪声
+    noise = np.random.normal(0, noise_level, n_samples)
+    noisy_signal = true_signal + noise
+    return time, true_signal, noisy_signal
+
+# 实现巴特沃斯低通滤波器
+def butterworth_lowpass_filter(signal_data, cutoff_frequency, sampling_rate, order=4):
+    """巴特沃斯低通滤波器"""
+    nyquist = 0.5 * sampling_rate
+    normalized_cutoff = cutoff_frequency / nyquist
+    b, a = signal.butter(order, normalized_cutoff, btype='low', analog=False)
+    filtered_signal = signal.filtfilt(b, a, signal_data)
+    return filtered_signal
+
+# 传感器数据处理测试
+def test_sensor_data_processing():
+    # 生成测试数据
+    n_samples = 1000
+    sampling_rate = 100
+    true_frequency = 5.0
+    noise_level = 0.5
+    
+    time, true_signal, noisy_signal = generate_test_data(
+        n_samples=n_samples, 
+        sampling_rate=sampling_rate, 
+        true_frequency=true_frequency, 
+        noise_level=noise_level
+    )
+    
+    # 应用滤波算法
+    cutoff_frequency = 10.0  # 截止频率
+    order = 4  # 滤波器阶数
+    
+    # 测量处理时间
+    import time
+    start_time = time.time()
+    filtered_signal = butterworth_lowpass_filter(noisy_signal, cutoff_frequency, sampling_rate, order)
+    end_time = time.time()
+    processing_time = end_time - start_time
+    
+    # 计算性能指标
+    # 均方根误差（RMSE）
+    rmse = np.sqrt(np.mean((filtered_signal - true_signal)**2))
+    # 信噪比（SNR）
+    signal_power = np.mean(true_signal**2)
+    noise_power = np.mean((filtered_signal - true_signal)**2)
+    snr = 10 * np.log10(signal_power / noise_power) if noise_power > 0 else float('inf')
+    
+    print(f"处理时间: {processing_time:.4f}秒")
+    print(f"均方根误差 (RMSE): {rmse:.4f}")
+    print(f"信噪比 (SNR): {snr:.2f} dB")
+    
+    # 绘制测试结果
+    plt.figure(figsize=(12, 8))
+    
+    # 绘制时间域信号
+    plt.subplot(2, 1, 1)
+    plt.plot(time, true_signal, label="真实信号", color="blue", linewidth=2)
+    plt.plot(time, noisy_signal, label="带噪声信号", color="gray", alpha=0.5)
+    plt.plot(time, filtered_signal, label="滤波后信号", color="red", linewidth=2)
+    plt.xlabel("时间 (秒)")
+    plt.ylabel("信号值")
+    plt.title("传感器数据处理测试结果")
+    plt.legend()
+    plt.grid(True)
+    
+    # 绘制频率域分析
+    plt.subplot(2, 1, 2)
+    # 计算功率谱密度
+    f_true, Pxx_true = signal.welch(true_signal, fs=sampling_rate, nperseg=256)
+    f_noisy, Pxx_noisy = signal.welch(noisy_signal, fs=sampling_rate, nperseg=256)
+    f_filtered, Pxx_filtered = signal.welch(filtered_signal, fs=sampling_rate, nperseg=256)
+    
+    plt.semilogy(f_true, Pxx_true, label="真实信号 PSD", color="blue", linewidth=2)
+    plt.semilogy(f_noisy, Pxx_noisy, label="带噪声信号 PSD", color="gray", alpha=0.5)
+    plt.semilogy(f_filtered, Pxx_filtered, label="滤波后信号 PSD", color="red", linewidth=2)
+    plt.axvline(x=cutoff_frequency, color="green", linestyle="--", alpha=0.5, label="截止频率")
+    plt.xlabel("频率 (Hz)")
+    plt.ylabel("功率谱密度")
+    plt.title("信号频率域分析")
+    plt.legend()
+    plt.grid(True)
+    
+    plt.tight_layout()
+    plt.show()
+
+# 主函数
+if __name__ == "__main__":
+    test_sensor_data_processing()</textarea>
+                        </div>
+                    </li>
+                    <li><strong>实践指导</strong>：
+                        <ol>
+                            <li>理解传感器数据处理测试的基本概念和测试指标</li>
+                            <li>学习常用的测试方法，如仿真测试、硬件测试、对比测试等</li>
+                            <li>实现简单的传感器数据处理测试脚本</li>
+                            <li>学习使用MATLAB或Python进行传感器数据处理测试</li>
+                            <li>实践不同类型的传感器数据处理算法测试</li>
+                        </ol>
+                    </li>
+                    <li><strong>注意事项</strong>：
+                        <ul>
+                            <li>测试数据需要具有代表性，包含不同类型的噪声和干扰</li>
+                            <li>测试环境需要尽可能接近实际使用环境</li>
+                            <li>测试结果需要进行详细的分析和记录</li>
+                            <li>测试结果需要与设计要求进行比较，评估算法性能</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3 class="subsection-title">重点难点解析</h3>
+                <ul>
+                    <li><strong>重点</strong>：PID控制算法的基本原理和传感器数据处理的基本方法</li>
+                    <li><strong>难点</strong>：PID参数的调优、复杂传感器数据的融合处理</li>
+                    <li><strong>详细解析</strong>：
+                        <ul>
+                            <li>PID参数的调优方法：经验法、Ziegler-Nichols方法、试凑法</li>
+                            <li>传感器数据融合的基本原理：数据融合的层次、常用的数据融合算法</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3 class="subsection-title">配套练习</h3>
+                <ol>
+                    <li><strong>基础练习</strong>：PID控制算法实现、传感器数据处理算法实现</li>
+                    <li><strong>进阶练习</strong>：PID参数调优、传感器数据融合</li>
+                    <li><strong>综合练习</strong>：使用PID控制算法控制灵巧手的关节运动，并处理传感器数据</li>
+                </ol>
+
+                <!-- 模拟实验环境 -->
+                <h3 class="subsection-title">模拟实验环境：PID控制器调试</h3>
+                <div class="simulation-container">
+                    <div class="simulation-controls">
+                        <div class="control-group">
+                            <label class="control-label">比例系数 (Kp):</label>
+                            <input type="range" class="slider" id="kp-slider" min="0" max="2" step="0.1" value="1">
+                            <span id="kp-value">1.0</span>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">积分系数 (Ki):</label>
+                            <input type="range" class="slider" id="ki-slider" min="0" max="1" step="0.05" value="0.1">
+                            <span id="ki-value">0.1</span>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">微分系数 (Kd):</label>
+                            <input type="range" class="slider" id="kd-slider" min="0" max="1" step="0.05" value="0.05">
+                            <span id="kd-value">0.05</span>
+                        </div>
+                        <div class="control-group">
+                            <button class="run-button" onclick="runPIDSimulation()">运行仿真</button>
+                        </div>
+                    </div>
+                    <canvas id="pid-chart" width="600" height="300"></canvas>
+                    <div class="simulation-result" id="pid-result">
+                        调整PID参数，点击"运行仿真"查看控制效果
+                    </div>
+                </div>
+            </section>
+
+            <!-- 阶段八：综合项目实践 -->
+            <section id="stage-8" class="content-block">
+                <h2 class="section-title">阶段八：综合项目实践（8周）</h2>
+                
+                <h3 class="subsection-title">学习目标</h3>
+                <ul>
+                    <li>能够独立完成一个完整的自动化测试项目</li>
+                    <li>掌握项目需求分析、设计、实现、测试和汇报的全流程</li>
+                    <li>能够将所学的自动化测试知识应用到实际项目中</li>
+                    <li>理解GB/T标准中关于自动化测试的相关要求</li>
+                    <li>能够使用商业自动化测试工具进行项目实践</li>
+                </ul>
+
+                <h3 class="subsection-title">学习内容</h3>
+                
+                <h4>1. 项目需求分析</h4>
+                <ul>
+                    <li><strong>理论知识</strong>：
+                        <ul>
+                            <li><strong>项目需求分析的基本概念</strong>：需求分析是指确定项目的目标、范围、功能和性能要求，明确项目的边界和约束条件</li>
+                            <li><strong>需求分析的方法和工具</strong>：
+                                <ul>
+                                    <li>访谈法：与用户和利益相关者进行面对面访谈，了解需求</li>
+                                    <li>问卷调查法：通过发放问卷收集用户需求</li>
+                                    <li>头脑风暴法：组织团队成员进行头脑风暴，激发创意</li>
+                                    <li>用例图：使用UML用例图描述系统的功能和参与者</li>
+                                    <li>需求规格说明书：编写详细的需求规格说明书，明确项目的需求</li>
+                                </ul>
+                            </li>
+                            <li><strong>测试计划和策略的制定</strong>：
+                                <ul>
+                                    <li>测试计划：明确测试的目标、范围、资源、进度和风险</li>
+                                    <li>测试策略：确定测试的方法、技术和工具，制定测试的优先级和覆盖范围</li>
+                                </ul>
+                            </li>
+                            <li><strong>测试用例设计方法</strong>：等价类划分、边界值分析、因果图、场景法、判定表法等</li>
+                        </ul>
+                    </li>
+                    <li><strong>GB/T标准参考</strong>：
+                        <ul>
+                            <li>GB/T 18905.1-2002《软件工程 产品评价 第1部分：概述》：定义了软件工程产品评价的基本概念和框架</li>
+                            <li>GB/T 16260.1-2006《软件工程 产品质量 第1部分：质量模型》：规定了软件工程产品质量的模型和特性</li>
+                            <li>GB/T 8567-2006《计算机软件文档编制规范》：规定了软件文档的编制要求和格式</li>
+                        </ul>
+                    </li>
+                    <li><strong>商业工具推荐</strong>：
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>工具名称</th>
+                                    <th>核心功能</th>
+                                    <th>适用场景</th>
+                                    <th>定价</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Jira</td>
+                                    <td>项目管理、需求管理、缺陷跟踪</td>
+                                    <td>敏捷开发项目</td>
+                                    <td>商业软件，约10美元/用户/月</td>
+                                </tr>
+                                <tr>
+                                    <td>Confluence</td>
+                                    <td>团队协作、文档管理</td>
+                                    <td>团队协作和知识管理</td>
+                                    <td>商业软件，约6美元/用户/月</td>
+                                </tr>
+                                <tr>
+                                    <td>TestRail</td>
+                                    <td>测试管理、测试用例管理、测试执行</td>
+                                    <td>测试管理</td>
+                                    <td>商业软件，约10美元/用户/月</td>
+                                </tr>
+                                <tr>
+                                    <td>Zephyr</td>
+                                    <td>测试管理、测试用例管理、测试执行</td>
+                                    <td>测试管理</td>
+                                    <td>商业软件，价格根据具体需求而定</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </li>
+                    <li><strong>第一性原理分析</strong>：从项目的本质（解决实际问题）出发，理解需求分析的核心价值——明确项目的目标和边界，确保开发的产品符合用户需求。需求分析的根本目的是确保项目团队和利益相关者对项目的需求达成共识，避免后期的需求变更和返工。</li>
+                    <li><strong>生活化类比</strong>：将项目需求分析类比为设计一个新产品，需要明确产品的功能、性能、价格等要求。例如，设计一款智能手机，需要明确它的屏幕尺寸、处理器、内存、相机像素等参数，以及它的价格范围和目标用户群体。</li>
+                    <li><strong>实例说明</strong>：
+                        <div class="code-editor-container">
+                            <div class="code-editor-header">
+                                <div class="code-editor-title">项目需求分析文档示例</div>
+                            </div>
+                            <textarea id="requirement-analysis-editor"># 灵巧手自动化测试平台项目需求分析文档
+
+## 1. 项目概述
+
+### 1.1 项目背景
+随着工业自动化和机器人技术的发展，灵巧手作为一种重要的末端执行器，在工业、医疗、服务等领域得到了广泛应用。为了确保灵巧手的质量和性能，需要建立一套完整的自动化测试平台，对灵巧手的功能、性能、可靠性等进行全面测试。
+
+### 1.2 项目目标
+开发一套灵巧手自动化测试平台，实现对灵巧手的功能、性能、可靠性等方面的自动化测试，提高测试效率和测试质量，降低测试成本。
+
+### 1.3 项目范围
+本项目主要包括以下内容：
+- 自动化测试框架的设计和实现
+- 测试用例的设计和编写
+- CI/CD流水线的搭建
+- 测试报告的生成和分析
+
+## 2. 功能需求
+
+### 2.1 测试框架功能
+- 支持Python+pytest+allure+loguru自动化测试框架
+- 支持ROS/ROS2框架测试
+- 支持通信接口与协议测试（CAN、UART、TCP/UDP）
+- 支持仿真平台应用（Gazebo、CoppeliaSim）
+- 支持CI/CD流水线搭建
+- 支持运动控制算法与传感器数据处理测试
+
+### 2.2 测试用例管理功能
+- 支持测试用例的设计和编写
+- 支持测试用例的版本管理
+- 支持测试用例的执行和跟踪
+- 支持测试用例的统计和分析
+
+### 2.3 测试执行功能
+- 支持自动化测试用例的执行
+- 支持手动测试用例的执行
+- 支持测试用例的并行执行
+- 支持测试用例的重试机制
+
+### 2.4 测试报告功能
+- 支持生成HTML格式的测试报告
+- 支持生成PDF格式的测试报告
+- 支持测试报告的可视化展示
+- 支持测试报告的导出和分享
+
+## 3. 非功能需求
+
+### 3.1 性能需求
+- 测试框架的响应时间不超过1秒
+- 支持同时执行100个以上的测试用例
+- 测试报告的生成时间不超过30秒
+
+### 3.2 可靠性需求
+- 测试框架的可用性达到99.9%
+- 支持测试用例的断点续传
+- 支持测试数据的备份和恢复
+
+### 3.3 易用性需求
+- 提供直观的用户界面
+- 支持拖拽式测试用例设计
+- 提供详细的用户文档和帮助信息
+
+### 3.4 可扩展性需求
+- 支持插件机制，方便扩展测试框架的功能
+- 支持自定义测试用例模板
+- 支持与其他测试工具的集成
+
+## 4. 测试用例设计示例
+
+### 4.1 功能测试用例
+| 测试用例ID | 测试用例名称 | 测试步骤 | 预期结果 |
+|------------|--------------|----------|----------|
+| TC-001 | 灵巧手抓取功能测试 | 1. 连接灵巧手<br>2. 执行抓取动作<br>3. 检查抓取结果 | 灵巧手能够成功抓取物体 |
+| TC-002 | 灵巧手释放功能测试 | 1. 连接灵巧手<br>2. 执行抓取动作<br>3. 执行释放动作<br>4. 检查释放结果 | 灵巧手能够成功释放物体 |
+
+### 4.2 性能测试用例
+| 测试用例ID | 测试用例名称 | 测试步骤 | 预期结果 |
+|------------|--------------|----------|----------|
+| TC-003 | 灵巧手响应时间测试 | 1. 连接灵巧手<br>2. 发送控制命令<br>3. 测量响应时间 | 响应时间不超过100ms |
+| TC-004 | 灵巧手精度测试 | 1. 连接灵巧手<br>2. 执行定位动作<br>3. 测量定位误差 | 定位误差不超过0.1mm |
+
+## 5. 测试计划和策略
+
+### 5.1 测试计划
+| 阶段 | 测试内容 | 时间安排 | 资源需求 |
+|------|----------|----------|----------|
+| 单元测试 | 测试框架的各个模块 | 第1-2周 | 开发人员 |
+| 集成测试 | 测试框架的集成功能 | 第3-4周 | 测试人员 |
+| 系统测试 | 测试框架的整体功能 | 第5-6周 | 测试人员 |
+| 验收测试 | 验证测试框架是否符合需求 | 第7-8周 | 客户代表 |
+
+### 5.2 测试策略
+- 采用黑盒测试和白盒测试相结合的方式
+- 重点测试核心功能和关键路径
+- 采用自动化测试为主，手动测试为辅的测试方式
+- 集成CI/CD流水线，实现自动化测试和持续集成
+
+## 6. 风险分析
+
+### 6.1 技术风险
+- 灵巧手的通信协议不兼容
+- 仿真平台的性能不足
+- 测试框架的扩展性不够
+
+### 6.2 管理风险
+- 需求变更频繁
+- 项目进度延迟
+- 资源不足
+
+### 6.3 解决方案
+- 提前与灵巧手供应商沟通，确保通信协议兼容
+- 优化仿真平台的性能，采用分布式仿真技术
+- 采用模块化设计，提高测试框架的扩展性
+- 建立需求变更管理机制，严格控制需求变更
+- 制定详细的项目计划，加强项目进度管理
+- 合理分配资源，确保项目顺利进行</textarea>
+                        </div>
+                    </li>
+                    <li><strong>实践指导</strong>：
+                        <ol>
+                            <li>明确项目的目标和范围，避免需求蔓延</li>
+                            <li>与用户和利益相关者进行充分沟通，确保需求理解一致</li>
+                            <li>采用合适的需求分析方法和工具，提高需求分析的效率和质量</li>
+                            <li>编写详细的需求规格说明书，明确项目的需求</li>
+                            <li>制定合理的测试计划和策略，确保测试的覆盖率和有效性</li>
+                        </ol>
+                    </li>
+                    <li><strong>注意事项</strong>：
+                        <ul>
+                            <li>需求分析是项目成功的关键，需要投入足够的时间和精力</li>
+                            <li>需求变更需要进行严格的管理和控制，避免影响项目进度和质量</li>
+                            <li>测试用例的设计需要覆盖所有的功能和非功能需求</li>
+                            <li>测试计划和策略需要根据项目的实际情况进行调整</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h4>2. 项目设计与实现</h4>
+                <ul>
+                    <li><strong>理论知识</strong>：
+                        <ul>
+                            <li><strong>自动化测试框架的设计原则</strong>：模块化、可扩展、可维护、易用性、可靠性、性能</li>
+                            <li><strong>自动化测试框架的核心组件</strong>：
+                                <ul>
+                                    <li>测试执行器：负责执行测试用例</li>
+                                    <li>测试报告生成器：负责生成测试报告</li>
+                                    <li>日志管理器：负责记录测试过程中的日志</li>
+                                    <li>配置管理器：负责管理测试框架的配置</li>
+                                    <li>断言库：负责验证测试结果</li>
+                                </ul>
+                            </li>
+                            <li><strong>测试用例的设计和实现</strong>：
+                                <ul>
+                                    <li>测试用例的设计原则：独立性、可重复性、可验证性、可维护性</li>
+                                    <li>测试用例的实现方法：使用Python+pytest+allure+loguru等工具实现自动化测试用例</li>
+                                </ul>
+                            </li>
+                            <li><strong>CI/CD流水线的集成</strong>：
+                                <ul>
+                                    <li>CI/CD流水线的设计原则：自动化、持续集成、持续交付、持续部署</li>
+                                    <li>CI/CD流水线的工具：GitLab CI/CD、Jenkins、GitHub Actions等</li>
+                                    <li>CI/CD流水线的阶段：构建、测试、部署、监控等</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><strong>GB/T标准参考</strong>：
+                        <ul>
+                            <li>GB/T 25000.10-2016《系统与软件工程 系统与软件质量要求和评价（SQuaRE） 第10部分：系统与软件质量模型》：规定了系统与软件质量的模型和特性</li>
+                            <li>GB/T 19001-2016《质量管理体系 要求》：规定了质量管理体系的要求</li>
+                            <li>GB/T 29827-2013《信息技术 软件工程 软件测试》：规定了软件测试的过程和方法</li>
+                        </ul>
+                    </li>
+                    <li><strong>商业工具推荐</strong>：
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>工具名称</th>
+                                    <th>核心功能</th>
+                                    <th>适用场景</th>
+                                    <th>定价</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Robot Framework</td>
+                                    <td>通用自动化测试框架</td>
+                                    <td>Web测试、API测试、桌面应用测试</td>
+                                    <td>开源免费</td>
+                                </tr>
+                                <tr>
+                                    <td>Selenium</td>
+                                    <td>Web应用自动化测试工具</td>
+                                    <td>Web测试</td>
+                                    <td>开源免费</td>
+                                </tr>
+                                <tr>
+                                    <td>Appium</td>
+                                    <td>移动应用自动化测试工具</td>
+                                    <td>iOS/Android应用测试</td>
+                                    <td>开源免费</td>
+                                </tr>
+                                <tr>
+                                    <td>pytest</td>
+                                    <td>Python测试框架</td>
+                                    <td>Python应用测试</td>
+                                    <td>开源免费</td>
+                                </tr>
+                                <tr>
+                                    <td>allure</td>
+                                    <td>测试报告生成工具</td>
+                                    <td>测试报告生成</td>
+                                    <td>开源免费</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </li>
+                    <li><strong>第一性原理分析</strong>：从设计的本质（规划解决方案）出发，理解项目设计的核心思想——模块化、可扩展、可维护。设计的根本目的是为了解决实际问题，项目设计需要考虑系统的功能、性能、可靠性、易用性等方面，确保系统能够满足用户的需求。</li>
+                    <li><strong>生活化类比</strong>：将项目设计与实现类比为建造一座房子。首先需要设计图纸（测试框架设计），包括房子的结构、布局、材料等；然后按照图纸进行施工（测试用例实现），包括地基、墙体、屋顶等；最后进行装修（CI/CD集成），包括水电、墙面、地面等。</li>
+                    <li><strong>实例说明</strong>：
+                        <div class="code-editor-container">
+                            <div class="code-editor-header">
+                                <div class="code-editor-title">自动化测试框架设计示例</div>
+                            </div>
+                            <textarea id="framework-design-editor"># 灵巧手自动化测试框架设计
+
+## 1. 框架架构
+
+### 1.1 总体架构
+灵巧手自动化测试框架采用分层架构设计，主要包括以下几层：
+
+- **接口层**：提供对外的API接口，包括测试用例管理、测试执行、测试报告等接口
+- **业务逻辑层**：实现核心业务逻辑，包括测试用例的解析和执行、测试结果的处理和分析等
+- **核心组件层**：提供核心功能组件，包括测试执行器、测试报告生成器、日志管理器等
+- **工具层**：提供各种工具类和辅助函数，包括文件操作、网络通信、数据处理等
+- **适配层**：提供与外部系统的集成接口，包括ROS/ROS2、通信接口、仿真平台等
+
+### 1.2 核心组件
+
+#### 1.2.1 测试执行器
+- **功能**：负责测试用例的解析和执行
+- **实现**：基于pytest框架实现，支持自动化测试用例的执行
+- **特点**：支持并行执行、重试机制、断点续传等功能
+
+#### 1.2.2 测试报告生成器
+- **功能**：负责生成测试报告
+- **实现**：基于allure框架实现，支持HTML和PDF格式的测试报告
+- **特点**：支持测试报告的可视化展示、导出和分享等功能
+
+#### 1.2.3 日志管理器
+- **功能**：负责记录测试过程中的日志
+- **实现**：基于loguru框架实现，支持多级别日志记录
+- **特点**：支持日志的滚动、压缩、归档等功能
+
+#### 1.2.4 配置管理器
+- **功能**：负责管理测试框架的配置
+- **实现**：基于YAML文件实现，支持动态配置更新
+- **特点**：支持配置的版本管理、备份和恢复等功能
+
+## 2. 框架实现
+
+### 2.1 目录结构
+```
+smart_hand_test_framework/
+├── docs/              # 文档目录
+├── examples/          # 示例代码
+├── smart_hand_test/   # 核心代码
+│   ├── adapters/      # 适配层
+│   ├── components/    # 核心组件
+│   ├── interfaces/    # 接口层
+│   ├── logic/         # 业务逻辑层
+│   ├── tools/         # 工具层
+│   └── __init__.py
+├── tests/             # 测试用例
+├── config.yaml        # 配置文件
+├── requirements.txt   # 依赖库
+├── setup.py           # 安装脚本
+└── README.md          # 项目说明
+```
+
+### 2.2 核心代码示例
+
+#### 2.2.1 测试执行器
+```python
+# smart_hand_test/components/test_executor.py
+
+import pytest
+import allure
+from loguru import logger
+
+class TestExecutor:
+    def __init__(self, config):
+        self.config = config
+        self.test_results = []
+    
+    def execute_test_case(self, test_case_path):
+        """执行单个测试用例"""
+        logger.info(f"执行测试用例：{test_case_path}")
+        
+        try:
+            # 使用pytest执行测试用例
+            result = pytest.main([
+                test_case_path,
+                f"--alluredir={self.config['allure']['results_dir']}",
+                "-v"
+            ])
+            
+            test_result = {
+                "test_case_path": test_case_path,
+                "result": "PASSED" if result == 0 else "FAILED",
+                "exit_code": result
+            }
+            
+            self.test_results.append(test_result)
+            logger.info(f"测试用例执行结果：{test_result['result']}")
+            
+            return test_result
+        except Exception as e:
+            logger.error(f"执行测试用例时发生错误：{str(e)}")
+            return {
+                "test_case_path": test_case_path,
+                "result": "ERROR",
+                "exit_code": -1,
+                "error_message": str(e)
+            }
+    
+    def execute_test_suite(self, test_suite_path):
+        """执行测试套件"""
+        logger.info(f"执行测试套件：{test_suite_path}")
+        
+        # 使用pytest执行测试套件
+        result = pytest.main([
+            test_suite_path,
+            f"--alluredir={self.config['allure']['results_dir']}",
+            "-v",
+            "-n", str(self.config['test']['parallel_workers'])
+        ])
+        
+        return result
+    
+    def generate_report(self):
+        """生成测试报告"""
+        logger.info("生成测试报告")
+        
+        # 使用allure生成测试报告
+        import subprocess
+        subprocess.run([
+            "allure", "generate",
+            self.config['allure']['results_dir'],
+            "-o", self.config['allure']['report_dir'],
+            "--clean"
+        ])
+        
+        logger.info(f"测试报告已生成：{self.config['allure']['report_dir']}")
+```
+
+#### 2.2.2 测试用例示例
+```python
+# tests/test_smart_hand.py
+
+import pytest
+import allure
+from loguru import logger
+from smart_hand_test.adapters.smart_hand import SmartHandAdapter
+
+# Fixture：创建灵巧手适配器实例
+@pytest.fixture
+def smart_hand():
+    logger.info("创建灵巧手适配器实例")
+    smart_hand = SmartHandAdapter()
+    smart_hand.connect()
+    yield smart_hand
+    smart_hand.disconnect()
+    logger.info("销毁灵巧手适配器实例")
+
+# 测试用例：灵巧手抓取功能
+@allure.feature("灵巧手功能测试")
+@allure.story("抓取功能测试")
+def test_grab_function(smart_hand):
+    """测试灵巧手抓取功能"""
+    logger.info("开始测试灵巧手抓取功能")
+    
+    # 执行抓取动作
+    result = smart_hand.grab()
+    
+    # 验证抓取结果
+    assert result == True, "灵巧手抓取失败"
+    logger.info("灵巧手抓取功能测试通过")
+
+# 测试用例：灵巧手释放功能
+@allure.feature("灵巧手功能测试")
+@allure.story("释放功能测试")
+def test_release_function(smart_hand):
+    """测试灵巧手释放功能"""
+    logger.info("开始测试灵巧手释放功能")
+    
+    # 先执行抓取动作
+    smart_hand.grab()
+    
+    # 执行释放动作
+    result = smart_hand.release()
+    
+    # 验证释放结果
+    assert result == True, "灵巧手释放失败"
+    logger.info("灵巧手释放功能测试通过")
+```
+
+## 3. CI/CD流水线配置
+
+### 3.1 GitHub Actions配置
+```yaml
+name: Smart Hand Test Framework CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run tests
+      run: |
+        pytest tests/ --alluredir=allure-results
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: allure-results
+        path: allure-results
+    
+    - name: Generate Allure report
+      uses: simple-elf/allure-report-action@master
+      id: allure-report
+      with:
+        allure_results: allure-results
+        allure_report: allure-report
+    
+    - name: Deploy to staging
+      if: github.ref == 'refs/heads/main'
+      run: |
+        echo "Deploying to staging environment..."
+        # Add your deployment commands here
+```
+
+### 3.2 GitLab CI/CD配置
+```yaml
+image: python:3.10
+
+stages:
+  - build
+  - test
+  - deploy
+
+build:
+  stage: build
+  script:
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+    - python setup.py build
+  artifacts:
+    paths:
+      - dist/
+
+.test-template:
+  stage: test
+  script:
+    - pytest tests/ --alluredir=allure-results
+  artifacts:
+    paths:
+      - allure-results/
+
+unit-test:
+  extends: .test-template
+  script:
+    - pytest tests/unit/ --alluredir=allure-results
+
+integration-test:
+  extends: .test-template
+  script:
+    - pytest tests/integration/ --alluredir=allure-results
+
+system-test:
+  extends: .test-template
+  script:
+    - pytest tests/system/ --alluredir=allure-results
+
+pages:
+  stage: deploy
+  script:
+    - allure generate allure-results -o public/allure-report --clean
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
+```
+</textarea>
+                        </div>
+                    </li>
+                    <li><strong>实践指导</strong>：
+                        <ol>
+                            <li>采用分层架构设计，提高系统的可维护性和可扩展性</li>
+                            <li>使用模块化设计，将系统划分为多个独立的模块，便于开发和测试</li>
+                            <li>使用开源框架和工具，提高开发效率和代码质量</li>
+                            <li>编写详细的文档，包括设计文档、开发文档、用户文档等</li>
+                            <li>进行充分的测试，包括单元测试、集成测试、系统测试等</li>
+                        </ol>
+                    </li>
+                    <li><strong>注意事项</strong>：
+                        <ul>
+                            <li>设计要考虑系统的可扩展性，便于后续功能的扩展和升级</li>
+                            <li>代码要遵循PEP 8编码规范，提高代码的可读性和可维护性</li>
+                            <li>要进行充分的测试，确保系统的质量和稳定性</li>
+                            <li>要定期进行代码审查，发现和修复潜在的问题</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h4>3. 项目测试与调试</h4>
+                <ul>
+                    <li><strong>理论知识</strong>：
+                        <ul>
+                            <li><strong>测试执行的基本流程</strong>：
+                                <ol>
+                                    <li>测试准备：配置测试环境、准备测试数据</li>
+                                    <li>测试执行：执行测试用例，记录测试结果</li>
+                                    <li>测试分析：分析测试结果，发现和定位问题</li>
+                                    <li>测试报告：生成测试报告，总结测试情况</li>
+                                </ol>
+                            </li>
+                            <li><strong>测试结果的分析方法</strong>：
+                                <ul>
+                                    <li>缺陷分析：分析缺陷的类型、分布、严重程度等</li>
+                                    <li>覆盖率分析：分析测试用例的覆盖率，包括语句覆盖率、分支覆盖率等</li>
+                                    <li>性能分析：分析系统的性能指标，包括响应时间、吞吐量、资源利用率等</li>
+                                    <li>可靠性分析：分析系统的可靠性指标，包括可用性、故障率、平均无故障时间等</li>
+                                </ul>
+                            </li>
+                            <li><strong>调试和优化的方法</strong>：
+                                <ul>
+                                    <li>日志分析：通过分析日志文件，定位问题的原因</li>
+                                    <li>断点调试：使用调试工具设置断点，逐步执行代码，观察变量的值和程序的执行流程</li>
+                                    <li>性能 profiling：使用性能分析工具，分析代码的性能瓶颈</li>
+                                    <li>代码审查：通过代码审查，发现和修复潜在的问题</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><strong>GB/T标准参考</strong>：
+                        <ul>
+                            <li>GB/T 18905.2-2002《软件工程 产品评价 第2部分：策划与管理》：规定了软件工程产品评价的策划与管理要求</li>
+                            <li>GB/T 18905.3-2002《软件工程 产品评价 第3部分：开发者用的过程》：规定了开发者用的产品评价过程</li>
+                            <li>GB/T 18905.4-2002《软件工程 产品评价 第4部分：需方用的过程》：规定了需方用的产品评价过程</li>
+                        </ul>
+                    </li>
+                    <li><strong>商业工具推荐</strong>：
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>工具名称</th>
+                                    <th>核心功能</th>
+                                    <th>适用场景</th>
+                                    <th>定价</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Jira</td>
+                                    <td>项目管理、缺陷跟踪</td>
+                                    <td>项目管理和缺陷跟踪</td>
+                                    <td>商业软件，约10美元/用户/月</td>
+                                </tr>
+                                <tr>
+                                    <td>Allure</td>
+                                    <td>测试报告生成工具</td>
+                                    <td>测试报告生成</td>
+                                    <td>开源免费</td>
+                                </tr>
+                                <tr>
+                                    <td>SonarQube</td>
+                                    <td>代码质量分析工具</td>
+                                    <td>代码质量分析</td>
+                                    <td>开源免费，企业版收费</td>
+                                </tr>
+                                <tr>
+                                    <td>Grafana</td>
+                                    <td>数据可视化工具</td>
+                                    <td>测试数据的可视化展示</td>
+                                    <td>开源免费，企业版收费</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </li>
+                    <li><strong>第一性原理分析</strong>：从测试的本质（验证功能正确性）出发，理解项目测试与调试的核心方法。测试的根本目的是验证系统是否能够满足用户的需求，调试的根本目的是定位和修复系统中的问题。</li>
+                    <li><strong>生活化类比</strong>：将项目测试与调试类比为检查和维修一座房子。测试人员会检查房子的各个部分（执行测试用例），发现问题（分析测试结果），然后维修人员会定位问题的原因（调试），并进行修复（优化）。</li>
+                    <li><strong>实例说明</strong>：
+                        <div class="code-editor-container">
+                            <div class="code-editor-header">
+                                <div class="code-editor-title">测试结果分析示例</div>
+                            </div>
+                            <textarea id="test-analysis-editor"># 灵巧手自动化测试平台测试结果分析报告
+
+## 1. 测试概述
+
+### 1.1 测试基本信息
+- **测试项目**：灵巧手自动化测试平台
+- **测试版本**：v1.0.0
+- **测试时间**：2025-05-01 至 2025-05-08
+- **测试环境**：
+  - 操作系统：Windows 10
+  - Python版本：3.10
+  - 测试框架：Python+pytest+allure+loguru
+
+### 1.2 测试范围
+本次测试主要覆盖以下内容：
+- 自动化测试框架的功能测试
+- 测试用例的执行和管理
+- CI/CD流水线的搭建和集成
+- 测试报告的生成和分析
+
+## 2. 测试结果统计
+
+### 2.1 测试用例执行情况
+| 测试类型 | 测试用例总数 | 通过数 | 失败数 | 通过率 |
+|----------|--------------|--------|--------|--------|
+| 单元测试 | 50 | 48 | 2 | 96.0% |
+| 集成测试 | 30 | 28 | 2 | 93.3% |
+| 系统测试 | 20 | 18 | 2 | 90.0% |
+| **总计** | **100** | **94** | **6** | **94.0%** |
+
+### 2.2 缺陷统计
+| 缺陷类型 | 缺陷总数 | 严重程度 | 状态 |
+|----------|----------|----------|------|
+| 功能缺陷 | 3 | 高：1，中：2 | 已修复：2，待修复：1 |
+| 性能缺陷 | 2 | 中：2 | 已修复：1，待修复：1 |
+| 易用性缺陷 | 1 | 低：1 | 待修复：1 |
+| **总计** | **6** | - | **已修复：3，待修复：3** |
+
+### 2.3 测试覆盖率
+| 覆盖率类型 | 目标值 | 实际值 | 达标情况 |
+|------------|--------|--------|----------|
+| 语句覆盖率 | 80% | 85% | 达标 |
+| 分支覆盖率 | 70% | 75% | 达标 |
+| 函数覆盖率 | 85% | 90% | 达标 |
+| 类覆盖率 | 90% | 95% | 达标 |
+
+## 3. 测试结果分析
+
+### 3.1 测试用例执行结果分析
+本次测试共执行了100个测试用例，通过了94个，通过率为94.0%，达到了预期的测试目标。其中，单元测试的通过率最高，为96.0%；系统测试的通过率最低，为90.0%。
+
+### 3.2 缺陷分析
+本次测试共发现了6个缺陷，其中功能缺陷3个，性能缺陷2个，易用性缺陷1个。大部分缺陷的严重程度为中，只有1个缺陷的严重程度为高。目前已修复了3个缺陷，还有3个缺陷待修复。
+
+### 3.3 测试覆盖率分析
+本次测试的各项覆盖率指标均达到了预期目标，其中语句覆盖率为85%，分支覆盖率为75%，函数覆盖率为90%，类覆盖率为95%。
+
+## 4. 问题定位与调试
+
+### 4.1 功能缺陷：灵巧手连接失败
+**问题描述**：在执行测试用例时，偶尔会出现灵巧手连接失败的情况。
+
+**问题定位**：
+1. 查看日志文件，发现连接超时的错误信息
+2. 使用网络抓包工具，分析通信过程
+3. 检查灵巧手的通信接口和协议
+
+**问题原因**：灵巧手的通信接口存在不稳定的情况，当网络负载较高时，会出现连接超时的问题。
+
+**解决方案**：
+1. 优化通信协议，增加重试机制
+2. 增加连接超时时间
+3. 优化网络环境，减少网络负载
+
+### 4.2 性能缺陷：测试报告生成时间过长
+**问题描述**：当测试用例数量较多时，测试报告的生成时间过长，超过了30秒的预期目标。
+
+**问题定位**：
+1. 使用性能分析工具，分析报告生成过程
+2. 查看allure框架的源码，了解报告生成的实现
+
+**问题原因**：allure框架在生成测试报告时，需要处理大量的测试数据，导致生成时间过长。
+
+**解决方案**：
+1. 优化allure报告生成的配置，减少不必要的数据处理
+2. 增加报告生成的并行处理能力
+3. 对测试数据进行预处理，减少报告生成时的数据处理量
+
+## 5. 测试结论与建议
+
+### 5.1 测试结论
+本次测试结果表明，灵巧手自动化测试平台的功能基本符合需求，测试通过率达到了94.0%，各项覆盖率指标均达到了预期目标。系统存在一些缺陷，但大部分缺陷的严重程度较低，不会影响系统的正常使用。
+
+### 5.2 建议
+1. 继续修复剩余的3个缺陷，提高系统的质量和稳定性
+2. 优化系统性能，减少测试报告生成时间
+3. 增加系统的易用性，提高用户体验
+4. 加强系统的监控和告警机制，及时发现和处理系统问题
+5. 定期进行回归测试，确保系统的质量和稳定性
+
+## 6. 后续工作安排
+
+| 工作内容 | 负责人 | 计划完成时间 |
+|----------|--------|--------------|
+| 修复剩余缺陷 | 开发团队 | 2025-05-15 |
+| 性能优化 | 开发团队 | 2025-05-20 |
+| 易用性改进 | 开发团队 | 2025-05-25 |
+| 监控和告警机制 | 开发团队 | 2025-05-30 |
+| 回归测试 | 测试团队 | 2025-06-05 |
+| 系统发布 | 项目团队 | 2025-06-10 |
+</textarea>
+                        </div>
+                    </li>
+                    <li><strong>实践指导</strong>：
+                        <ol>
+                            <li>制定详细的测试计划和策略，明确测试的目标和范围</li>
+                            <li>采用合适的测试方法和工具，提高测试效率和测试质量</li>
+                            <li>进行充分的测试，包括单元测试、集成测试、系统测试等</li>
+                            <li>对测试结果进行详细的分析，发现和定位问题</li>
+                            <li>及时修复发现的问题，确保系统的质量和稳定性</li>
+                        </ol>
+                    </li>
+                    <li><strong>注意事项</strong>：
+                        <ul>
+                            <li>测试环境要尽可能接近实际使用环境</li>
+                            <li>测试数据要具有代表性，包含正常情况、边界情况和异常情况</li>
+                            <li>测试结果要进行详细的记录和分析，便于后续的优化和改进</li>
+                            <li>要定期进行回归测试，确保系统的质量和稳定性</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h4>4. 项目总结与汇报</h4>
+                <ul>
+                    <li><strong>理论知识</strong>：
+                        <ul>
+                            <li><strong>项目总结的基本内容</strong>：
+                                <ul>
+                                    <li>项目概述：项目的背景、目标、范围等</li>
+                                    <li>项目进展：项目的实际进展情况，包括已完成的工作和未完成的工作</li>
+                                    <li>项目成果：项目取得的成果，包括功能实现、性能指标、质量指标等</li>
+                                    <li>项目问题：项目中遇到的问题和挑战，以及解决方法</li>
+                                    <li>经验教训：项目中的经验和教训，以及对后续项目的建议</li>
+                                    <li>后续计划：项目的后续工作计划和安排</li>
+                                </ul>
+                            </li>
+                            <li><strong>项目汇报的基本结构</strong>：
+                                <ul>
+                                    <li>开场：项目的基本信息和背景介绍</li>
+                                    <li>主体：项目的进展、成果、问题等</li>
+                                    <li>结尾：项目的结论和建议</li>
+                                </ul>
+                            </li>
+                            <li><strong>项目汇报的技巧</strong>：
+                                <ul>
+                                    <li>简洁明了：汇报内容要简洁明了，重点突出</li>
+                                    <li>可视化：使用图表、图片等可视化方式展示汇报内容</li>
+                                    <li>重点突出：重点汇报项目的成果和价值，以及遇到的问题和解决方案</li>
+                                    <li>互动交流：与听众进行互动交流，回答听众的问题</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><strong>GB/T标准参考</strong>：
+                        <ul>
+                            <li>GB/T 18905.4-2002《软件工程 产品评价 第4部分：需方用的过程》：规定了需方用的产品评价过程</li>
+                            <li>GB/T 8567-2006《计算机软件文档编制规范》：规定了软件文档的编制要求和格式</li>
+                            <li>GB/T 19001-2016《质量管理体系 要求》：规定了质量管理体系的要求</li>
+                        </ul>
+                    </li>
+                    <li><strong>商业工具推荐</strong>：
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>工具名称</th>
+                                    <th>核心功能</th>
+                                    <th>适用场景</th>
+                                    <th>定价</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>PowerPoint</td>
+                                    <td>演示文稿制作</td>
+                                    <td>项目汇报、会议演示等</td>
+                                    <td>商业软件，约100元/年</td>
+                                </tr>
+                                <tr>
+                                    <td>Keynote</td>
+                                    <td>演示文稿制作</td>
+                                    <td>项目汇报、会议演示等</td>
+                                    <td>商业软件，约100元/年</td>
+                                </tr>
+                                <tr>
+                                    <td>Prezi</td>
+                                    <td>演示文稿制作</td>
+                                    <td>项目汇报、会议演示等</td>
+                                    <td>商业软件，约10美元/月</td>
+                                </tr>
+                                <tr>
+                                    <td>Confluence</td>
+                                    <td>团队协作、文档管理</td>
+                                    <td>项目文档管理、知识共享等</td>
+                                    <td>商业软件，约6美元/用户/月</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </li>
+                    <li><strong>第一性原理分析</strong>：从总结的本质（提炼经验和教训）出发，理解项目总结与汇报的核心价值——展示项目成果，分享经验教训，促进持续改进。总结的根本目的是为了从项目中学习，提高后续项目的质量和效率。</li>
+                    <li><strong>生活化类比</strong>：将项目总结与汇报类比为向客户展示一座建好的房子。销售人员会介绍房子的特点、功能、质量等，让客户了解房子的价值；同时，建造团队也会总结建造过程中的经验和教训，为后续的项目提供参考。</li>
+                    <li><strong>实例说明</strong>：
+                        <div class="code-editor-container">
+                            <div class="code-editor-header">
+                                <div class="code-editor-title">项目总结报告示例</div>
+                            </div>
+                            <textarea id="project-summary-editor"># 灵巧手自动化测试平台项目总结报告
+
+## 1. 项目概述
+
+### 1.1 项目背景
+随着工业自动化和机器人技术的发展，灵巧手作为一种重要的末端执行器，在工业、医疗、服务等领域得到了广泛应用。为了确保灵巧手的质量和性能，需要建立一套完整的自动化测试平台，对灵巧手的功能、性能、可靠性等进行全面测试。
+
+### 1.2 项目目标
+开发一套灵巧手自动化测试平台，实现对灵巧手的功能、性能、可靠性等方面的自动化测试，提高测试效率和测试质量，降低测试成本。
+
+### 1.3 项目范围
+本项目主要包括以下内容：
+- 自动化测试框架的设计和实现
+- 测试用例的设计和编写
+- CI/CD流水线的搭建
+- 测试报告的生成和分析
+
+## 2. 项目进展
+
+### 2.1 计划与实际进度对比
+| 阶段 | 计划开始时间 | 计划完成时间 | 实际开始时间 | 实际完成时间 | 状态 |
+|------|--------------|--------------|--------------|--------------|------|
+| 需求分析 | 2025-03-01 | 2025-03-15 | 2025-03-01 | 2025-03-15 | 已完成 |
+| 设计与开发 | 2025-03-16 | 2025-04-30 | 2025-03-16 | 2025-04-30 | 已完成 |
+| 测试与优化 | 2025-05-01 | 2025-05-15 | 2025-05-01 | 2025-05-15 | 已完成 |
+| 部署与上线 | 2025-05-16 | 2025-05-20 | 2025-05-16 | 2025-05-20 | 已完成 |
+
+### 2.2 已完成的工作
+1. **自动化测试框架的设计和实现**：
+   - 采用分层架构设计，实现了测试执行器、测试报告生成器、日志管理器等核心组件
+   - 支持Python+pytest+allure+loguru自动化测试框架
+   - 支持ROS/ROS2框架测试、通信接口与协议测试、仿真平台应用等
+
+2. **测试用例的设计和编写**：
+   - 设计和编写了100个测试用例，覆盖了单元测试、集成测试、系统测试等
+   - 支持测试用例的执行、管理和跟踪
+   - 支持测试用例的版本管理和备份恢复
+
+3. **CI/CD流水线的搭建**：
+   - 搭建了基于GitHub Actions和GitLab CI/CD的CI/CD流水线
+   - 实现了自动化测试、测试报告生成、代码质量分析等功能
+   - 支持持续集成、持续交付、持续部署等功能
+
+4. **测试报告的生成和分析**：
+   - 实现了基于allure框架的测试报告生成功能
+   - 支持HTML和PDF格式的测试报告
+   - 支持测试报告的可视化展示、导出和分享等功能
+
+### 2.3 未完成的工作
+1. **性能优化**：测试报告生成时间过长的问题还需要进一步优化
+2. **易用性改进**：用户界面的易用性还需要进一步改进
+3. **文档完善**：用户文档和帮助信息还需要进一步完善
+
+## 3. 项目成果
+
+### 3.1 功能成果
+- 实现了自动化测试框架的核心功能
+- 支持100个以上的测试用例执行
+- 支持CI/CD流水线的搭建和集成
+- 支持测试报告的生成和分析
+
+### 3.2 性能成果
+- 测试框架的响应时间不超过1秒
+- 支持同时执行100个以上的测试用例
+- 测试报告的生成时间不超过30秒
+
+### 3.3 质量成果
+- 测试用例通过率达到94.0%
+- 代码覆盖率达到85%以上
+- 系统可用性达到99.9%
+
+### 3.4 效益成果
+- 提高了测试效率，减少了测试时间
+- 提高了测试质量，减少了测试错误
+- 降低了测试成本，减少了人力投入
+- 提高了产品质量，减少了产品缺陷
+
+## 4. 项目问题与解决方案
+
+### 4.1 技术问题
+1. **问题**：灵巧手的通信协议不兼容
+   **解决方案**：与灵巧手供应商沟通，获取通信协议的详细文档，开发适配层实现协议转换
+
+2. **问题**：仿真平台的性能不足
+   **解决方案**：优化仿真平台的配置，采用分布式仿真技术，提高仿真平台的性能
+
+3. **问题**：测试报告生成时间过长
+   **解决方案**：优化allure报告生成的配置，增加报告生成的并行处理能力
+
+### 4.2 管理问题
+1. **问题**：需求变更频繁
+   **解决方案**：建立需求变更管理机制，严格控制需求变更，确保项目进度和质量
+
+2. **问题**：项目进度延迟
+   **解决方案**：制定详细的项目计划，加强项目进度管理，及时调整计划和资源
+
+3. **问题**：资源不足
+   **解决方案**：合理分配资源，优先保证核心功能的开发和测试
+
+## 5. 经验教训
+
+### 5.1 成功经验
+1. **采用分层架构设计**：提高了系统的可维护性和可扩展性
+2. **使用开源框架和工具**：提高了开发效率和代码质量
+3. **进行充分的测试**：确保了系统的质量和稳定性
+4. **建立良好的沟通机制**：促进了团队成员之间的沟通和协作
+
+### 5.2 教训与改进
+1. **需求分析不够充分**：导致后续需求变更频繁，影响了项目进度和质量
+2. **文档不够完善**：导致后续维护和扩展困难
+3. **性能优化不够重视**：导致系统性能存在瓶颈
+
+### 5.3 对后续项目的建议
+1. **加强需求分析**：投入足够的时间和精力进行需求分析，确保需求明确和一致
+2. **完善文档编制**：编写详细的设计文档、开发文档、用户文档等
+3. **重视性能优化**：在设计和开发阶段就考虑系统的性能问题
+4. **加强测试工作**：进行充分的测试，包括单元测试、集成测试、系统测试等
+5. **建立持续改进机制**：定期进行项目回顾和总结，不断改进项目管理和开发流程
+
+## 6. 后续计划
+
+### 6.1 近期计划（1-3个月）
+1. 修复剩余的缺陷
+2. 优化系统性能，减少测试报告生成时间
+3. 改进用户界面的易用性
+4. 完善用户文档和帮助信息
+
+### 6.2 中期计划（3-6个月）
+1. 扩展测试框架的功能，支持更多类型的测试
+2. 优化CI/CD流水线，提高自动化程度
+3. 增加系统的监控和告警机制
+4. 支持更多类型的灵巧手和测试设备
+
+### 6.3 长期计划（6-12个月）
+1. 实现智能化测试，支持测试用例的自动生成和优化
+2. 支持云原生部署，提高系统的可扩展性和可靠性
+3. 建立测试数据仓库，支持测试数据的分析和挖掘
+4. 开发移动端应用，支持移动设备上的测试管理和执行
+
+## 7. 总结
+
+灵巧手自动化测试平台项目的实施，实现了对灵巧手的功能、性能、可靠性等方面的自动化测试，提高了测试效率和测试质量，降低了测试成本。项目的成功实施，为后续的灵巧手测试工作提供了有力的支持，也为其他类型的机器人测试提供了参考和借鉴。
+
+在项目实施过程中，我们遇到了一些技术和管理问题，但通过团队成员的共同努力，都得到了有效的解决。同时，我们也积累了一些成功经验和教训，为后续的项目提供了参考和借鉴。
+
+未来，我们将继续优化和改进灵巧手自动化测试平台，扩展其功能和应用范围，提高其性能和易用性，为灵巧手的测试工作提供更好的支持和服务。</textarea>
+                        </div>
+                    </li>
+                    <li><strong>实践指导</strong>：
+                        <ol>
+                            <li>项目总结要全面、客观，包括项目的进展、成果、问题等</li>
+                            <li>项目汇报要简洁明了，重点突出，使用可视化方式展示汇报内容</li>
+                            <li>要重视经验教训的总结和分享，促进团队成员的学习和成长</li>
+                            <li>要制定合理的后续计划，确保项目的持续改进和发展</li>
+                        </ol>
+                    </li>
+                    <li><strong>注意事项</strong>：
+                        <ul>
+                            <li>项目总结要及时进行，最好在项目结束后一周内完成</li>
+                            <li>项目汇报要根据听众的不同，调整汇报的内容和方式</li>
+                            <li>要重视项目文档的管理和归档，便于后续的查阅和参考</li>
+                            <li>要建立持续改进机制，定期进行项目回顾和总结</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3 class="subsection-title">重点难点解析</h3>
+                <ul>
+                    <li><strong>重点</strong>：项目的设计、实现和测试</li>
+                    <li><strong>难点</strong>：项目的调试和优化、测试用例的设计和覆盖、CI/CD流水线的集成</li>
+                    <li><strong>详细解析</strong>：
+                        <ul>
+                            <li>项目的调试和优化：使用日志分析、断点调试、代码审查等方法，定位问题的原因；使用性能 profiling 工具，分析代码的性能瓶颈</li>
+                            <li>测试用例的设计和覆盖：使用等价类划分、边界值分析、因果图、场景法等方法，设计全面、有效的测试用例</li>
+                            <li>CI/CD流水线的集成：将测试框架集成到CI/CD流水线中，实现测试的自动化执行和报告生成</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3 class="subsection-title">配套练习</h3>
+                <ol>
+                    <li><strong>项目实践</strong>：完成一个完整的灵巧手自动化测试项目，包括需求分析和测试计划制定、自动化测试框架设计和实现、测试用例设计和编写、CI/CD流水线搭建、测试执行和结果分析、项目总结和汇报</li>
+                    <li><strong>项目汇报</strong>：准备一个15-20分钟的项目汇报，包括项目背景和目标、项目设计和实现、测试结果和分析、经验教训和未来改进</li>
+                </ol>
+            </section>
+
+            <!-- 重点难点解析 -->
+            <section id="key-difficulties" class="content-block">
+                <h2 class="section-title">重点难点解析</h2>
+                
+                <h3 class="subsection-title">1. 自动化测试框架的设计与实现</h3>
+                <ul>
+                    <li><strong>难点</strong>：自动化测试框架的设计和实现需要考虑很多因素，如可扩展性、可维护性、易用性等</li>
+                    <li><strong>解析</strong>：从第一性原理出发，理解自动化测试框架的核心需求——提高测试效率、降低测试成本、确保测试质量，然后逐步设计和实现。首先确定框架的核心组件（测试执行器、测试报告生成器、日志管理器），然后设计组件之间的交互方式，最后实现各个组件</li>
+                    <li><strong>生活化类比</strong>：将自动化测试框架类比为建造一栋大楼，需要考虑结构（框架架构）、材料（编程语言和库）、功能（测试执行、报告生成、日志管理）等多个方面。大楼的结构决定了其稳定性和可扩展性，就像测试框架的架构决定了其性能和可维护性</li>
+                </ul>
+
+                <!-- 此处省略其他重点难点解析，根据实际需求添加 -->
+            </section>
+
+            <!-- 配套练习 -->
+            <section id="exercises" class="content-block">
+                <h2 class="section-title">配套练习</h2>
+                
+                <h3 class="subsection-title">1. 基础练习</h3>
+                
+                <h4>1.1 Python编程基础练习</h4>
+                <ul>
+                    <li><strong>练习目标</strong>：掌握Python基本语法和面向对象编程</li>
+                    <li><strong>练习内容</strong>：
+                        <ul>
+                            <li>编写Python程序实现加减乘除等基本数学运算</li>
+                            <li>编写Python类实现简单的计算器功能</li>
+                            <li>编写Python程序读取和写入文件</li>
+                        </ul>
+                    </li>
+                    <li><strong>预期结果</strong>：能够独立编写简单的Python程序，理解面向对象编程的基本概念</li>
+                    <li><strong>评估标准</strong>：程序的正确性、代码的可读性、面向对象设计的合理性</li>
+                </ul>
+
+                <!-- 即时反馈机制 -->
+                <div class="feedback-container" id="feedback">
+                    <h3 class="feedback-title">提交练习反馈</h3>
+                    <form class="feedback-form">
+                        <textarea class="feedback-input" placeholder="请输入您的练习答案或遇到的问题..."></textarea>
+                        <div class="feedback-actions">
+                            <button type="button" class="submit-button" onclick="submitFeedback()">提交</button>
+                        </div>
+                    </form>
+                    <div class="feedback-result" id="feedback-result"></div>
+                </div>
+
+                <!-- 此处省略其他练习内容，根据实际需求添加 -->
+            </section>
+
+            <!-- 效果评估方法 -->
+            <section id="evaluation" class="content-block">
+                <h2 class="section-title">效果评估方法</h2>
+                <!-- 此处省略详细内容，根据实际需求添加 -->
+            </section>
+
+            <!-- 学习资源推荐 -->
+            <section id="resources" class="content-block">
+                <h2 class="section-title">学习资源推荐</h2>
+                
+                <h3 class="subsection-title">1. 书籍</h3>
+                
+                <h4>1.1 自动化测试基础</h4>
+                <ul>
+                    <li><strong>《自动化测试实战》</strong>：本书介绍了自动化测试的基本概念、方法和工具，包括Selenium、Appium、pytest等，适合自动化测试入门学习者。
+                        <br><strong>推荐理由</strong>：内容全面，案例丰富，适合初学者快速掌握自动化测试的核心概念和实践方法。</li>
+                </ul>
+
+                <h4>1.2 Python编程</h4>
+                <ul>
+                    <li><strong>《Python编程：从入门到实践》</strong>：本书是Python入门经典教材，通过项目驱动的方式介绍Python编程，包括游戏开发、Web开发等。
+                        <br><strong>推荐理由</strong>：通俗易懂，案例有趣，适合零基础学习者快速掌握Python编程。</li>
+                </ul>
+
+                <!-- 此处省略其他资源推荐，根据实际需求添加 -->
+            </section>
+
+            <!-- 学习建议 -->
+            <section id="suggestions" class="content-block">
+                <h2 class="section-title">学习建议</h2>
+                
+                <h3 class="subsection-title">1. 循序渐进，稳扎稳打</h3>
+                <ul>
+                    <li><strong>建议</strong>：按照分阶段学习计划，逐步深入学习，不要急于求成</li>
+                    <li><strong>第一性原理</strong>：学习是一个渐进的过程，需要从基础到高级，逐步构建知识体系</li>
+                    <li><strong>生活化类比</strong>：学习就像建造一座大楼，需要先打地基（基础概念），然后建框架（核心技术），最后装修（高级特性）</li>
+                    <li><strong>具体方法</strong>：
+                        <ul>
+                            <li>每周制定详细的学习计划，明确学习目标和任务</li>
+                            <li>每天安排固定的学习时间，保持学习的连续性</li>
+                            <li>完成一个阶段的学习后，进行总结和复习，确保掌握后再进入下一阶段</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <!-- 此处省略其他学习建议，根据实际需求添加 -->
+            </section>
+
+            <!-- 预期学习成果 -->
+            <section id="expected-results" class="content-block">
+                <h2 class="section-title">预期学习成果</h2>
+                
+                <h3 class="subsection-title">1. 知识层面</h3>
+                <ul>
+                    <li><span class="highlight">✅</span> 掌握自动化测试的基本概念、原理和方法</li>
+                    <li><span class="highlight">✅</span> 熟练使用Python+pytest+allure+loguru自动化测试框架</li>
+                    <li><span class="highlight">✅</span> 理解ROS/ROS2框架的核心概念和测试方法</li>
+                    <li><span class="highlight">✅</span> 掌握通信接口与协议（CAN、UART、TCP/UDP）的测试方法</li>
+                    <li><span class="highlight">✅</span> 了解仿真平台（Gazebo、CoppeliaSim）的基本使用</li>
+                    <li><span class="highlight">✅</span> 掌握CI/CD流水线的搭建方法</li>
+                    <li><span class="highlight">✅</span> 理解运动控制算法（PID、轨迹规划）的基本原理和测试方法</li>
+                    <li><span class="highlight">✅</span> 掌握传感器数据处理（滤波、校准、融合）的基本方法和测试技巧</li>
+                </ul>
+
+                <!-- 此处省略其他预期成果，根据实际需求添加 -->
+            </section>
+        </main>
+    </div>
+
+    <!-- 返回顶部按钮 -->
+    <button class="back-to-top" id="back-to-top" onclick="scrollToTop()">↑</button>
+
+    <!-- JavaScript代码 -->
+    <script>
+        // 模拟数据
+        const learningData = {
+            totalChapters: 12,
+            completedChapters: 1,
+            totalExercises: 30,
+            completedExercises: 2,
+            totalHours: 5,
+            completionRate: 8.3
+        };
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+        });
+
+        // 初始化页面
+        function initializePage() {
+            // 初始化学习进度
+            updateProgress();
+            
+            // 初始化代码编辑器
+            initializeCodeEditor();
+            
+            // 初始化图表
+            initializeCharts();
+            
+            // 初始化PID仿真控制器
+            initializePIDSimulation();
+            
+            // 隐藏加载动画
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        // 初始化代码编辑器
+        function initializeCodeEditor() {
+            // 使用CodeMirror初始化代码编辑器
+            const editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
+                mode: 'python',
+                theme: 'default',
+                lineNumbers: true,
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                indentUnit: 4,
+                indentWithTabs: false
+            });
+        }
+
+        // 初始化图表
+        function initializeCharts() {
+            // 示例图表
+            const ctx1 = document.getElementById('example-chart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['阶段一', '阶段二', '阶段三', '阶段四', '阶段五', '阶段六', '阶段七', '阶段八'],
+                    datasets: [{
+                        label: '学习难度',
+                        data: [2, 4, 5, 6, 5, 4, 7, 8],
+                        backgroundColor: 'rgba(24, 144, 255, 0.6)',
+                        borderColor: 'rgba(24, 144, 255, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10
+                        }
+                    }
+                }
+            });
+
+            // PID控制图表
+            const ctx2 = document.getElementById('pid-chart').getContext('2d');
+            window.pidChart = new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: '设定值',
+                        data: [],
+                        borderColor: 'rgba(82, 196, 26, 1)',
+                        backgroundColor: 'rgba(82, 196, 26, 0.1)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.1
+                    }, {
+                        label: '实际值',
+                        data: [],
+                        borderColor: 'rgba(24, 144, 255, 1)',
+                        backgroundColor: 'rgba(24, 144, 255, 0.1)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 2
+                        }
+                    }
+                }
+            });
+        }
+
+        // 初始化PID仿真控制器
+        function initializePIDSimulation() {
+            // 监听滑块变化
+            document.getElementById('kp-slider').addEventListener('input', function() {
+                document.getElementById('kp-value').textContent = this.value;
+            });
+            document.getElementById('ki-slider').addEventListener('input', function() {
+                document.getElementById('ki-value').textContent = this.value;
+            });
+            document.getElementById('kd-slider').addEventListener('input', function() {
+                document.getElementById('kd-value').textContent = this.value;
+            });
+        }
+
+        // 运行代码
+        function runCode() {
+            // 这里使用eval模拟代码运行，实际应用中应该使用更安全的方式
+            try {
+                const code = document.getElementById('code-editor').value;
+                const result = eval(code);
+                document.getElementById('code-result').textContent = '代码执行成功！';
+            } catch (error) {
+                document.getElementById('code-result').textContent = '执行错误：' + error.message;
+            }
+        }
+
+        // 运行PID仿真
+        function runPIDSimulation() {
+            // 获取PID参数
+            const kp = parseFloat(document.getElementById('kp-slider').value);
+            const ki = parseFloat(document.getElementById('ki-slider').value);
+            const kd = parseFloat(document.getElementById('kd-slider').value);
+            
+            // 模拟PID控制过程
+            const setpoint = 1.0;
+            let output = 0;
+            let integral = 0;
+            let prevError = 0;
+            const dt = 0.1;
+            const iterations = 100;
+            
+            const time = [];
+            const setpoints = [];
+            const outputs = [];
+            
+            for (let i = 0; i < iterations; i++) {
+                const error = setpoint - output;
+                integral += error * dt;
+                const derivative = (error - prevError) / dt;
+                
+                output += kp * error + ki * integral + kd * derivative;
+                prevError = error;
+                
+                time.push(i * dt);
+                setpoints.push(setpoint);
+                outputs.push(output);
+            }
+            
+            // 更新图表
+            window.pidChart.data.labels = time;
+            window.pidChart.data.datasets[0].data = setpoints;
+            window.pidChart.data.datasets[1].data = outputs;
+            window.pidChart.update();
+            
+            // 更新结果
+            const result = document.getElementById('pid-result');
+            result.textContent = `PID参数：Kp=${kp}, Ki=${ki}, Kd=${kd}\n`;
+            result.textContent += `仿真结果：系统在${iterations * dt}秒后达到稳定\n`;
+            result.textContent += `最终输出值：${output.toFixed(4)}, 与设定值的误差：${Math.abs(setpoint - output).toFixed(4)}`;
+        }
+
+        // 更新学习进度
+        function updateProgress() {
+            const progressFill = document.querySelector('.progress-fill');
+            const statValues = document.querySelectorAll('.stat-value');
+            
+            progressFill.style.width = learningData.completionRate + '%';
+            statValues[0].textContent = learningData.completionRate + '%';
+            statValues[1].textContent = learningData.totalHours;
+            statValues[2].textContent = `${learningData.completedChapters}/${learningData.totalChapters}`;
+            statValues[3].textContent = `${learningData.completedExercises}/${learningData.totalExercises}`;
+        }
+
+        // 滚动到指定章节
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // 提交反馈
+        function submitFeedback() {
+            const input = document.querySelector('.feedback-input');
+            const result = document.getElementById('feedback-result');
+            
+            if (!input.value.trim()) {
+                result.textContent = '请输入反馈内容！';
+                result.className = 'feedback-result error';
+                return;
+            }
+            
+            // 模拟提交反馈
+            result.textContent = '反馈提交成功！感谢您的参与，我们会尽快处理您的反馈。';
+            result.className = 'feedback-result success';
+            
+            // 清空输入框
+            input.value = '';
+        }
+
+        // 返回顶部功能
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // 监听滚动事件，控制返回顶部按钮的显示和隐藏
+        window.addEventListener('scroll', function() {
+            const backToTopButton = document.getElementById('back-to-top');
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.add('show');
+            } else {
+                backToTopButton.classList.remove('show');
+            }
+            
+            // 侧边栏滚动高亮
+            updateSidebarActiveItem();
+        });
+
+        // 更新侧边栏活跃项
+        function updateSidebarActiveItem() {
+            const sections = document.querySelectorAll('section[id]');
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            
+            let currentSectionId = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (window.pageYOffset >= (sectionTop - 200)) {
+                    currentSectionId = section.getAttribute('id');
+                }
+            });
+            
+            sidebarItems.forEach(item => {
+                item.classList.remove('active');
+                const itemSectionId = item.getAttribute('onclick')?.match(/scrollToSection\('(.*?)'\)/)?.[1];
+                if (itemSectionId === currentSectionId) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        // 初始化所有代码编辑器
+        function initializeAllCodeEditors() {
+            // 初始化默认代码编辑器
+            if (document.getElementById('code-editor')) {
+                CodeMirror.fromTextArea(document.getElementById('code-editor'), {
+                    mode: 'python',
+                    theme: 'default',
+                    lineNumbers: true,
+                    autoCloseBrackets: true,
+                    matchBrackets: true,
+                    indentUnit: 4,
+                    indentWithTabs: false
+                });
+            }
+            
+            // 初始化UART代码编辑器
+            if (document.getElementById('uart-code-editor')) {
+                CodeMirror.fromTextArea(document.getElementById('uart-code-editor'), {
+                    mode: 'python',
+                    theme: 'default',
+                    lineNumbers: true,
+                    autoCloseBrackets: true,
+                    matchBrackets: true,
+                    indentUnit: 4,
+                    indentWithTabs: false
+                });
+            }
+            
+            // 初始化阶段2代码编辑器
+            if (document.getElementById('stage2-code-editor')) {
+                CodeMirror.fromTextArea(document.getElementById('stage2-code-editor'), {
+                    mode: 'python',
+                    theme: 'default',
+                    lineNumbers: true,
+                    autoCloseBrackets: true,
+                    matchBrackets: true,
+                    indentUnit: 4,
+                    indentWithTabs: false
+                });
+            }
+            
+            // 初始化ROS2话题发布者代码编辑器
+            if (document.getElementById('ros2-publisher-editor')) {
+                CodeMirror.fromTextArea(document.getElementById('ros2-publisher-editor'), {
+                    mode: 'python',
+                    theme: 'default',
+                    lineNumbers: true,
+                    autoCloseBrackets: true,
+                    matchBrackets: true,
+                    indentUnit: 4,
+                    indentWithTabs: false
+                });
+            }
+            
+            // 初始化ROS2节点测试代码编辑器
+            if (document.getElementById('ros2-test-editor')) {
+                CodeMirror.fromTextArea(document.getElementById('ros2-test-editor'), {
+                    mode: 'python',
+                    theme: 'default',
+                    lineNumbers: true,
+                    autoCloseBrackets: true,
+                    matchBrackets: true,
+                    indentUnit: 4,
+                    indentWithTabs: false
+                });
+            }
+            
+            // 初始化ROS2服务节点测试代码编辑器
+            if (document.getElementById('ros2-service-test-editor')) {
+                CodeMirror.fromTextArea(document.getElementById('ros2-service-test-editor'), {
+                    mode: 'python',
+                    theme: 'default',
+                    lineNumbers: true,
+                    autoCloseBrackets: true,
+                    matchBrackets: true,
+                    indentUnit: 4,
+                    indentWithTabs: false
+                });
+            }
+            
+            // 初始化Gazebo模型SDF示例代码编辑器
+            if (document.getElementById('gazebo-sdf-editor')) {
+                CodeMirror.fromTextArea(document.getElementById('gazebo-sdf-editor'), {
+                    mode: 'xml',
+                    theme: 'default',
+                    lineNumbers: true,
+                    autoCloseBrackets: true,
+                    matchBrackets: true,
+                    indentUnit: 4,
+                    indentWithTabs: false
+                });
+            }
+            
+            // 初始化CoppeliaSim Python远程API示例代码编辑器
+            if (document.getElementById('coppeliasim-python-editor')) {
+                CodeMirror.fromTextArea(document.getElementById('coppeliasim-python-editor'), {
+                    mode: 'python',
+                    theme: 'default',
+                    lineNumbers: true,
+                    autoCloseBrackets: true,
+                    matchBrackets: true,
+                    indentUnit: 4,
+                    indentWithTabs: false
+                });
+            }
+            
+            // 初始化GitHub Actions CI/CD流水线示例代码编辑器
+            if (document.getElementById('github-actions-editor')) {
+                CodeMirror.fromTextArea(document.getElementById('github-actions-editor'), {
+                    mode: 'yaml',
+                    theme: 'default',
+                    lineNumbers: true,
+                    autoCloseBrackets: true,
+                    matchBrackets: true,
+                    indentUnit: 2,
+                    indentWithTabs: false
+                });
+            }
+            
+            // 初始化GitLab CI/CD流水线示例代码编辑器
+            if (document.getElementById('gitlab-ci-editor')) {
+                CodeMirror.fromTextArea(document.getElementById('gitlab-ci-editor'), {
+                    mode: 'yaml',
+                    theme: 'default',
+                    lineNumbers: true,
+                    autoCloseBrackets: true,
+                    matchBrackets: true,
+                    indentUnit: 2,
+                    indentWithTabs: false
+                });
+            }
+            
+            // 初始化PID控制算法实现示例代码编辑器
+            if (document.getElementById('pid-implementation-editor')) {
+                CodeMirror.fromTextArea(document.getElementById('pid-implementation-editor'), {
+                    mode: 'python',
+                    theme: 'default',
+                    lineNumbers: true,
+                    autoCloseBrackets: true,
+                    matchBrackets: true,
+                    indentUnit: 4,
+                    indentWithTabs: false
+                });
+            }
+            
+            // 初始化传感器数据滤波示例代码编辑器
+            if (document.getElementById('sensor-filter-editor')) {
+                CodeMirror.fromTextArea(document.getElementById('sensor-filter-editor'), {
+                    mode: 'python',
+                    theme: 'default',
+                    lineNumbers: true,
+                    autoCloseBrackets: true,
+                    matchBrackets: true,
+                    indentUnit: 4,
+                    indentWithTabs: false
+                });
+            }
+            
+            // 初始化运动控制算法测试示例代码编辑器
+            if (document.getElementById('motion-control-test-editor')) {
+                CodeMirror.fromTextArea(document.getElementById('motion-control-test-editor'), {
+                    mode: 'python',
+                    theme: 'default',
+                    lineNumbers: true,
+                    autoCloseBrackets: true,
+                    matchBrackets: true,
+                    indentUnit: 4,
+                    indentWithTabs: false
+                });
+            }
+            
+            // 初始化传感器数据处理测试示例代码编辑器
+            if (document.getElementById('sensor-processing-test-editor')) {
+                CodeMirror.fromTextArea(document.getElementById('sensor-processing-test-editor'), {
+                    mode: 'python',
+                    theme: 'default',
+                    lineNumbers: true,
+                    autoCloseBrackets: true,
+                    matchBrackets: true,
+                    indentUnit: 4,
+                    indentWithTabs: false
+                });
+            }
+            
+            // 初始化项目需求分析文档示例代码编辑器
+            if (document.getElementById('requirement-analysis-editor')) {
+                CodeMirror.fromTextArea(document.getElementById('requirement-analysis-editor'), {
+                    mode: 'markdown',
+                    theme: 'default',
+                    lineNumbers: true,
+                    autoCloseBrackets: true,
+                    matchBrackets: true,
+                    indentUnit: 4,
+                    indentWithTabs: false
+                });
+            }
+            
+            // 初始化自动化测试框架设计示例代码编辑器
+            if (document.getElementById('framework-design-editor')) {
+                CodeMirror.fromTextArea(document.getElementById('framework-design-editor'), {
+                    mode: 'markdown',
+                    theme: 'default',
+                    lineNumbers: true,
+                    autoCloseBrackets: true,
+                    matchBrackets: true,
+                    indentUnit: 4,
+                    indentWithTabs: false
+                });
+            }
+            
+            // 初始化测试结果分析示例代码编辑器
+            if (document.getElementById('test-analysis-editor')) {
+                CodeMirror.fromTextArea(document.getElementById('test-analysis-editor'), {
+                    mode: 'markdown',
+                    theme: 'default',
+                    lineNumbers: true,
+                    autoCloseBrackets: true,
+                    matchBrackets: true,
+                    indentUnit: 4,
+                    indentWithTabs: false
+                });
+            }
+            
+            // 初始化项目总结报告示例代码编辑器
+            if (document.getElementById('project-summary-editor')) {
+                CodeMirror.fromTextArea(document.getElementById('project-summary-editor'), {
+                    mode: 'markdown',
+                    theme: 'default',
+                    lineNumbers: true,
+                    autoCloseBrackets: true,
+                    matchBrackets: true,
+                    indentUnit: 4,
+                    indentWithTabs: false
+                });
+            }
+        }
+
+        // 更新代码编辑器初始化函数调用
+        function initializeCodeEditor() {
+            initializeAllCodeEditors();
+        }
+    </script>
+</body>
+</html>
